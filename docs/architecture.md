@@ -133,7 +133,7 @@ WhatsApp** (à traiter, traitée, sans suite) : ce ne sont jamais des commandes.
 
 ### Aperçus de partage (Open Graph)
 `web/scripts/pages-partage.mjs`, après `vite build` : pour chaque pièce publiée (lue en base, sinon dans les fichiers),
-une page `dist/produit/<slug>/index.html` avec ses balises `og:` et une image JPEG 1200 × 630 de moins de 300 Ko
+une page `dist/produit/<slug>.html` (servie à `/produit/<slug>` sans redirection) avec ses balises `og:` et une image JPEG 1200 × 630 de moins de 300 Ko
 (`dist/partage/`). Netlify et nginx servent cette page avant `index.html`. Le robot relance un build (build hook) quand
 le catalogue a changé, au plus toutes les 12 h (`republication_necessaire`).
 

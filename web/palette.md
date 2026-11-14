@@ -81,6 +81,7 @@ Changer une valeur ici, puis demander « applique palette.md » : le code suit.
 | `--voile-entete` | `#f5f4f0b8` | Relevé `.nav-scrolled` | fond de l'en-tête après 50 px de défilement (+ flou 18 px) |
 | `--ligne-entete` | `#0a0a0a14` | Relevé `.nav-scrolled`, `.cart-drawer` | filet bas de l'en-tête, bord des panneaux |
 | `--ombre-tiroir` | `-30px 0 60px -20px #0a0a0a2e` | Relevé `.cart-drawer` | panier latéral |
+| `--ombre-photo-type` | `0 30px 30px -10px rgba(0, 0, 0, 0.35)` | Approximé | photo inclinée des cartes « par type » (accueil) |
 
 ## Administration (`/admin`, classe `theme-admin` sur `<html>`)
 

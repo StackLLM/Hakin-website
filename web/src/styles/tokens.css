@@ -52,6 +52,7 @@
   --voile-entete: #f5f4f0b8;
   --ligne-entete: #0a0a0a14;
   --ombre-tiroir: -30px 0 60px -20px #0a0a0a2e;
+  --ombre-photo-type: 0 30px 30px -10px rgba(0, 0, 0, 0.35);
 }
 
 /* Administration (/admin) : identité d'application technique, posée sur <html class="theme-admin"> seulement
