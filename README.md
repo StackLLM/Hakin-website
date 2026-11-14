@@ -99,7 +99,9 @@ Modèle : `web/.env.example`.
 3. La demande n'est fusionnée que si la CI est verte ; la fusion dans `main` publie le site (Netlify).
 4. Après la fusion, `dev` reste alignée : `git switch dev; git pull; git merge origin/main`.
 
-Même règle pour les deux dépôts (`oussamaalmouallim/Hakin-website` et `StackLLM`).
+Même règle pour les deux dépôts (`oussamaalmouallim/Hakin-website` et `StackLLM/Hakin-website`, privé). `main` est protégée
+sur le premier seulement (fusion obligatoire, CI verte) : GitHub ne protège pas un dépôt privé d'organisation gratuite,
+la règle y est tenue à la main (jamais de push direct sur `main`).
 
 ## CI/CD
 
