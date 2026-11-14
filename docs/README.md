@@ -3,7 +3,7 @@
 | Je veux… | Lire |
 |---|---|
 | Lancer le projet, les commandes | [`../README.md`](../README.md) |
-| Mettre en ligne, surveiller, sauvegarder, connaître les coûts | [guide PDF](../DEPLOIEMENT_ET_SUPERVISION/GUIDE_DEPLOIEMENT_HEBERGEMENT_MAINTENANCE_HMODE.pdf) et [`../DEPLOIEMENT_ET_SUPERVISION/`](../DEPLOIEMENT_ET_SUPERVISION/) (étude, supervision, checklist) ; source du PDF : [`guide-pdf/`](guide-pdf/) |
+| Mettre en ligne, surveiller, sauvegarder, connaître les coûts | [guide PDF](../DEPLOIEMENT_ET_SUPERVISION/GUIDE_DEPLOIEMENT_HEBERGEMENT_MAINTENANCE_HMODE.pdf) et [`../DEPLOIEMENT_ET_SUPERVISION/`](../DEPLOIEMENT_ET_SUPERVISION/) (étude, supervision, checklist, [rapport d'audit avant production](../DEPLOIEMENT_ET_SUPERVISION/RAPPORT_AUDIT_PREPRODUCTION.md)) ; source du PDF : [`guide-pdf/`](guide-pdf/) |
 | Lancer la marque sur les réseaux (identité, prompts, stratégies, publicité) | [`../marketing/INDEX.md`](../marketing/INDEX.md) |
 | Comprendre comment le site est construit | [`architecture.md`](architecture.md) |
 | Savoir pourquoi un choix a été fait | [`decisions/`](decisions/) (ADR, ci-dessous) |
