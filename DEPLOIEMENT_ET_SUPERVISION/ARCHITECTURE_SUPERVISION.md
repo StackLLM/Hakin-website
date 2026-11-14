@@ -39,7 +39,7 @@ H MODE n'a **pas de serveur à nous**. Le site est un ensemble de fichiers servi
 | Sauvegarde par script `npm run sauvegarde` | **testée** sur la base en ligne le 10/11 (134 Ko, 62 produits) | dossier `~/Documents/HMODE-sauvegardes/2026-11-10_19h17` |
 | Restauration testée `npm run sauvegarde:tester` | **testée** : 26 tables identiques, 62 pièces lues à travers la RLS | sortie du script ; refus d'une copie modifiée vérifié |
 | Panne de la base | **testée en local** : robot en échec (code 1), point de santé sans réponse ; retour à la normale vu aussitôt | conteneur de base figé puis relancé |
-| Robot GitHub en ligne | **à configurer** : variables et secret `SANTE_JETON` | guide, chapitre 10 |
+| Robot GitHub en ligne | **actif** depuis le 14/11 (toutes les 30 min) | premier passage : 9 contrôles sur 9 réussis, enregistrés en base |
 | Service externe (alerte en minutes) | **à créer** par vous | guide, chapitre 11 |
 | Migration `20261110120000_sante_et_journal.sql` en ligne | **appliquée le 10/11**, après sauvegarde | `npx supabase migration list` |
 
