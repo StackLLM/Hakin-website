@@ -1,23 +1,31 @@
-// Guide PDF de déploiement, d'hébergement et de maintenance : `npm run guide:pdf` (dans web/).
-// Source : docs/guide-pdf/guide.html + guide.css (contenu et mise en page, charte H MODE).
+// Guides PDF de H MODE (dans web/) :
+//   · `npm run guide:pdf` : déploiement, hébergement et maintenance — source docs/guide-pdf/ ;
+//   · `npm run guide:marketing` (option --marketing) : lancement marketing — source docs/guide-marketing-pdf/.
+// Chaque source = guide.html + guide.css (contenu et mise en page, charte H MODE).
 // Rendu : Chromium (Playwright, déjà installé pour les tests) + Paged.js, qui met en page en A4 : numéros de page du
 // sommaire (target-counter), en-têtes et pieds courants, titres jamais seuls en bas de page.
-// Sortie : DEPLOIEMENT_ET_SUPERVISION/GUIDE_DEPLOIEMENT_HEBERGEMENT_MAINTENANCE_HMODE.pdf
-// Option : `npm run guide:pdf -- --apercus` écrit aussi une image PNG par page dans web/rapports/guide-apercus/ (contrôle visuel).
+// Sorties : DEPLOIEMENT_ET_SUPERVISION/GUIDE_DEPLOIEMENT_HEBERGEMENT_MAINTENANCE_HMODE.pdf
+//           MARKETING_ET_LANCEMENT/GUIDE_LANCEMENT_MARKETING_HMODE.pdf
+// Option : `-- --apercus` écrit aussi une image PNG par page dans web/rapports/<guide>-apercus/ (contrôle visuel).
 import { chromium } from '@playwright/test'
 import { createReadStream, existsSync, mkdirSync, rmSync, statSync } from 'node:fs'
 import { createServer } from 'node:http'
 import { extname, join, normalize, resolve } from 'node:path'
 
 const RACINE = resolve(import.meta.dirname, '../..')
-const SORTIE = join(RACINE, 'DEPLOIEMENT_ET_SUPERVISION', 'GUIDE_DEPLOIEMENT_HEBERGEMENT_MAINTENANCE_HMODE.pdf')
+const GUIDES = {
+  hebergement: { source: 'docs/guide-pdf', sortie: ['DEPLOIEMENT_ET_SUPERVISION', 'GUIDE_DEPLOIEMENT_HEBERGEMENT_MAINTENANCE_HMODE.pdf'], apercus: 'guide-apercus' },
+  marketing: { source: 'docs/guide-marketing-pdf', sortie: ['MARKETING_ET_LANCEMENT', 'GUIDE_LANCEMENT_MARKETING_HMODE.pdf'], apercus: 'guide-marketing-apercus' },
+}
+const GUIDE = GUIDES[process.argv.includes('--marketing') ? 'marketing' : 'hebergement']
+const SORTIE = join(RACINE, ...GUIDE.sortie)
 const POLYFILL = join(RACINE, 'web', 'node_modules', 'pagedjs', 'dist', 'paged.polyfill.js')
 const apercus = process.argv.includes('--apercus')
 
 // Paged.js relit les feuilles de style par requête HTTP (interdit en file://) : petit serveur de fichiers éphémère,
 // sur 127.0.0.1 et un port choisi par le système, limité aux dossiers utiles, arrêté à la fin du script.
 const TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.woff2': 'font/woff2', '.svg': 'image/svg+xml', '.png': 'image/png' }
-const AUTORISES = [join(RACINE, 'docs', 'guide-pdf'), join(RACINE, 'web', 'node_modules', '@fontsource'), join(RACINE, 'web', 'node_modules', 'pagedjs', 'dist')]
+const AUTORISES = [join(RACINE, GUIDE.source), join(RACINE, 'web', 'node_modules', '@fontsource'), join(RACINE, 'web', 'node_modules', 'pagedjs', 'dist')]
 const serveur = createServer((req, res) => {
   const chemin = normalize(join(RACINE, decodeURIComponent(new URL(req.url, 'http://x').pathname)))
   if (!AUTORISES.some(d => chemin.startsWith(d + '/')) || !existsSync(chemin) || !statSync(chemin).isFile()) { res.writeHead(404).end(); return }
@@ -34,7 +42,7 @@ try {
   page.on('pageerror', e => erreurs.push(String(e)))
   page.on('console', m => { if (m.type() === 'error') erreurs.push(m.text()) })
   await page.addInitScript(() => { window.PagedConfig = { auto: false } })
-  await page.goto(`${BASE}/docs/guide-pdf/guide.html`, { waitUntil: 'load' })
+  await page.goto(`${BASE}/${GUIDE.source}/guide.html`, { waitUntil: 'load' })
   await page.evaluate(() => document.fonts.ready)
   await page.addScriptTag({ path: POLYFILL })
   // La page est déjà chargée : on lance la mise en page à la main (auto: false) et on attend qu'elle finisse.
@@ -60,11 +68,11 @@ try {
   for (const l of [...bilan.titresSeuls, ...bilan.tableauxCoupes.map(t => `tableau coupé p. ${t}`), ...bilan.debordements.map(d => `débordement p. ${d}`)]) console.log(`  ⚠ ${l}`)
   if (erreurs.length) console.log(`  ⚠ erreurs de la page : ${erreurs.slice(0, 5).join(' | ')}`)
   if (apercus) {
-    const dossier = join(RACINE, 'web', 'rapports', 'guide-apercus')
+    const dossier = join(RACINE, 'web', 'rapports', GUIDE.apercus)
     rmSync(dossier, { recursive: true, force: true }); mkdirSync(dossier, { recursive: true })
     const pages = await page.$$('.pagedjs_page')
     for (const [i, p] of pages.entries()) await p.screenshot({ path: join(dossier, `page-${String(i + 1).padStart(2, '0')}.png`) })
-    console.log(`  aperçus : ${pages.length} images dans web/rapports/guide-apercus/`)
+    console.log(`  aperçus : ${pages.length} images dans web/rapports/${GUIDE.apercus}/`)
   }
 } finally {
   await navigateur.close()
