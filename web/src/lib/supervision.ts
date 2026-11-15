@@ -71,6 +71,7 @@ export function installerSurveillance() {
 // ── Pages vues ────────────────────────────────────────────────────────────────────────────────────
 let lcp: number | null = null
 let premiere = true
+let limiteVisites = false
 if (typeof window !== 'undefined' && typeof PerformanceObserver !== 'undefined') {
   try {
     new PerformanceObserver(liste => {
@@ -82,9 +83,11 @@ if (typeof window !== 'undefined' && typeof PerformanceObserver !== 'undefined')
 
 /** Compte une page vue (hors administration). La première attend 4 s pour joindre le temps d'affichage (LCP). */
 export function compterVisite(page: string) {
-  if (!supabaseActif || page.startsWith('/admin')) return
+  if (!supabaseActif || limiteVisites || page.startsWith('/admin')) return
   const envoyer = (avecLcp: boolean) => void obtenirSupabase()
     .then(sb => sb?.rpc('compter_visite', { page: nettoyer(page, 200), lcp_ms: avecLcp ? lcp : null }))
+    // Limite atteinte (HTTP 429) : on cesse de compter pour cette page ouverte, au lieu d'insister à chaque clic.
+    .then(r => { if (r?.status === 429) limiteVisites = true })
     .catch(() => undefined)
   if (premiere) { premiere = false; window.setTimeout(() => envoyer(true), 4000) } else envoyer(false)
 }

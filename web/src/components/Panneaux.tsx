@@ -12,7 +12,7 @@ import { rechercher, suggestions } from '@/lib/recherche'
 import { formatDH } from '@/lib/format'
 import { DUREE_MENU, DUREE_PANNEAU, EASE_MAISON, EASE_PANNEAU } from '@/lib/animations'
 import { LiensReseaux } from './Reseaux'
-import { LIENS_PRINCIPAUX, lienActif } from './EnTete'
+import { lienActif, useLiensPrincipaux } from './EnTete'
 
 /** Ferme tout panneau ouvert quand l'adresse change. */
 export function useFermerSurNavigation() {
@@ -84,7 +84,7 @@ export function MenuMobile() {
   const { pathname, search } = useLocation()
   const connecte = useSession(s => Boolean(s.utilisateur) || !s.pret)
   // Référence : Boutique · Hommes · Femmes · Soldes (rouge) en Archivo Black 36 px ; H MODE ajoute Accueil en tête
-  const liens = LIENS_PRINCIPAUX
+  const liens = useLiensPrincipaux()
   const secondaires = [
     { vers: '/collections', libelle: 'Collections' }, { vers: '/maison', libelle: 'La Maison' }, { vers: '/contact', libelle: 'Contact' },
     { vers: '/compte/favoris', libelle: 'Favoris' }, connecte ? { vers: '/compte', libelle: 'Compte' } : { vers: '/connexion', libelle: 'Connexion' },

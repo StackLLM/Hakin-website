@@ -9,6 +9,9 @@ import { useFavoris } from '@/state/favoris'
 import { useSession } from '@/state/session'
 import { SEUIL_ENTETE } from '@/lib/animations'
 import { cn } from '@/lib/utils'
+import { produits } from '@/lib/catalogue'
+import { estEnSolde } from '@/lib/filtres'
+import { useDonnees } from '@/lib/donnees'
 
 /** Menu principal de la référence : Boutique · Hommes · Femmes · Soldes (`/shop`, `?g=men`, `?g=women`, `?sale=1`), précédé d'Accueil.
  *  « Soldes » en rouge (Relevé `.nav-link-underline.sale`). Un seul lien souligné à la fois (`lienActif`). */
@@ -19,6 +22,14 @@ export const LIENS_PRINCIPAUX: { vers: string; libelle: string; solde?: boolean 
   { vers: '/boutique?genre=femme', libelle: 'Femmes' },
   { vers: '/boutique?solde=1', libelle: 'Soldes', solde: true },
 ]
+
+/** Liens du menu à afficher : « Soldes » seulement si au moins une pièce est en solde (une fonction sans données est
+ *  masquée). Relu à chaque nouveau catalogue (`useDonnees.version`). */
+export function useLiensPrincipaux() {
+  useDonnees(s => s.version)
+  const avecSoldes = produits.some(estEnSolde)
+  return LIENS_PRINCIPAUX.filter(l => !l.solde || avecSoldes)
+}
 
 /** Un seul lien souligné : Hommes sur `?genre=homme`, Femmes sur `?genre=femme`, Soldes sur `?solde=1`,
  *  Boutique sur la boutique hors de ces rayons, Accueil sur `/`. */
@@ -50,6 +61,7 @@ function BoutonRond({ label, onClick, vers, children, compteur, className }: { l
  *  Transparent en haut de page ; au-delà de 50 px : voile flouté, filet bas, padding réduit à 14 px. */
 export function EnTete() {
   const { pathname, search } = useLocation()
+  const liens = useLiensPrincipaux()
   const ouvrir = useInterface(s => s.ouvrir)
   const menuOuvert = useInterface(s => s.panneau === 'menu')
   const fermer = useInterface(s => s.fermer)
@@ -71,7 +83,7 @@ export function EnTete() {
       <nav aria-label="Navigation principale" className="hidden lg:block">
         {/* Référence : 14 px, .16em, écart 42 px (Mesuré) dès 1280 px. Entre 1024 et 1280 px : 13 px, écart 24 px. Sous 1024 px, nos 5 liens ne tiennent pas : menu burger (mêmes liens). */}
         <ul className="flex gap-6 whitespace-nowrap xl:gap-[42px]">
-          {LIENS_PRINCIPAUX.map(l => (
+          {liens.map(l => (
             <li key={l.vers}>
               <Link to={l.vers} aria-current={lienActif(l.vers, pathname, search) ? 'page' : undefined}
                 className={cn('lien-nav text-[13px] font-medium uppercase tracking-[0.14em] text-encre xl:text-[14px] xl:tracking-[0.16em]', l.solde && 'solde', lienActif(l.vers, pathname, search) && 'actif')}>{l.libelle}</Link>

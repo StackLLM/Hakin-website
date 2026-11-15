@@ -42,7 +42,7 @@
 
 ---
 
-### Avancement (10/11/2026)
+### Avancement (11/11/2026)
 
 | Lot | État | Détail |
 |---|---|---|
@@ -80,6 +80,12 @@
 | 36 | ✅ fait (10/11) | **Sauvegardes** : `npm run sauvegarde` (rôles, structure, données, photos, manifeste SHA-256 et lignes) et `npm run sauvegarde:tester` (Supabase jetable 553xx, restauration, comparaison, RLS). Faits pour de vrai sur la base en ligne le 10/11 : 26 tables identiques. |
 | 37 | ✅ fait (10/11) | **Tests** : 89 Vitest, 44 Playwright site, 3 Playwright admin (axe sur les 5 onglets), 97 contrôles Supabase local, build ; pannes simulées en local (base figée : robot en échec, point de santé muet ; reprise vue) ; copie de sauvegarde abîmée refusée. |
 | 38 | ✅ fait (10/11) | **Guide PDF** `DEPLOIEMENT_ET_SUPERVISION/GUIDE_DEPLOIEMENT_HEBERGEMENT_MAINTENANCE_HMODE.pdf` (36 pages, charte H MODE, sommaire paginé, 82 liens) + `ARCHITECTURE_SUPERVISION.md`, `CHECKLIST_MISE_EN_PRODUCTION.md` ; source `docs/guide-pdf/`, `npm run guide:pdf` (Paged.js). `GUIDE_HEBERGEMENT.md` archivé. ADR 0009. |
+| 39 | ✅ fait (11/11) | **Thème d'application de l'admin** : classe `theme-admin` sur `<html>` le temps de `/admin` (tokens dans `tokens.css` et `palette.md` § Administration : fond gris chaud, surfaces blanches, titres Space Grotesk sans capitales, beige en accent) ; boutons, champs et fenêtres du design-system habillés par crochets `ds-*` (`index.css`), sans doublon ; pages publiques inchangées. |
+| 40 | ✅ fait (11/11) | **Composants Lightswind** (registre officiel `lightswind.com/r/*.json`, licence MIT, adaptés) : `sidebar`, `card`, `badge`, `table`, `toggle-group`, `chart` (recharts, seule nouvelle dépendance, chargée dans l'admin seulement), `command`, `tooltip`, `skeleton`, `progress` ; kit admin dans `commun.tsx` (`KpiCarte`, `GrilleKpi`, `EtatVide`, `SqueletteAdmin`, `Pastille`). |
+| 41 | ✅ fait (11/11) | **Coque SaaS** (`CoqueAdmin.tsx`, `navigation.ts`) : barre latérale repliable (choix gardé), tiroir mobile, compteurs réels (commandes nouvelles, demandes à traiter), barre du haut (fil d'Ariane, recherche Ctrl+K, état global de la supervision, compte). |
+| 42 | ✅ fait (11/11) | **Supervision en 5 pages indépendantes** : `/admin/supervision` (vue d'ensemble), `/sante`, `/journaux` (filtres, recherche, détail d'un événement), `/securite` (endpoints `POST /rpc/…`, consommation, activité anormale), `/maintenance` (tâches, déploiements, sauvegardes) ; graphiques réels (performance 48 h, activité 30 j, limites 24 h), états vides sans courbe inventée ; anciennes adresses `?onglet=` redirigées. **Toutes les pages** passées au même kit (KPI, tableaux, filtres, barres d'enregistrement collées en bas). |
+| 43 | ✅ fait (11/11) | **Tests** : 91 Vitest (dont 5 pour les pages de supervision), 44 Playwright site, 4 Playwright admin (axe WCAG 2.2 AA sur 14 écrans, 375 px sans défilement horizontal, tiroir, Ctrl+K), build, CloneMe synchronisé. Vérifié dans le navigateur sur Supabase local (1440 et 375 px). |
+| 44 | ✅ fait (14/11) | **Audit préproduction** (parcours réels sur Supabase local, 39 routes × 3 largeurs, site en ligne en lecture seule). Corrigé : la fiche ne se remonte plus quand la base renvoie le même catalogue que la copie (taille et quantité gardées) ; titre d'onglet propre à chaque page (`lib/titres.ts`) ; « Soldes » masqué sans pièce en solde ; avertissements React Router supprimés (drapeaux v7) ; compteur de visites arrêté après un 429 ; aides inutilisées de `lib/utils.ts` retirées. Tests : 98 Vitest, 44 Playwright site, 4 admin, Supabase local vert. Ensuite : fiches partagées écrites en `produit/<slug>.html` (plus de redirection 301 vers `/produit/<slug>/`, nginx aligné), photo du héros téléchargée en priorité (LCP mobile), ombre en dur passée en token (`--ombre-photo-type`), `chrome-launcher` déclaré. Reste côté hébergeur : couper le badge « Powered by Netlify » (son script est bloqué par la CSP). |
 
 > **Chemins anciens dans l'historique ci-dessus** : `ui/` est devenu `web/` ; `supabase/schema.sql` et
 > `supabase/lot-XX-*.sql` sont devenus les migrations de `supabase/migrations/` ; `Template/` est dans
