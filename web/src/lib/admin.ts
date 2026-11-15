@@ -85,6 +85,8 @@ export const libelleStatut = (s: string) => STATUTS.find(x => x.cle === s)?.libe
 
 export interface CommandeAdmin {
   reference: string; cree_le: string; statut: Statut; sous_total_dh: number
+  /** Reçue au-delà du plafond horaire de commandes (afflux) : à vérifier avant de la traiter. */
+  a_verifier?: boolean
   nom: string; telephone: string; email: string; ville: string; adresse: string; instructions: string
   lignes_commande: { slug: string; nom: string; coloris: string; taille: string; quantite: number; prix_dh: number }[]
 }
@@ -100,7 +102,10 @@ export function filtrerCommandes(liste: CommandeAdmin[], q: string, statut: Stat
 /** Export tableur : séparateur « ; » (Excel en français), guillemets doublés, BOM pour les accents. */
 export function csvCommandes(liste: CommandeAdmin[]) {
   const cellule = (v: unknown) => {
-    const s = String(v ?? '')
+    // Une cellule qui commence par = + - @ (ou tabulation, retour) serait lue comme une formule par le tableur :
+    // apostrophe devant, le tableur l'affiche comme du texte (le nom ou l'adresse viennent des clients).
+    const brut = String(v ?? '')
+    const s = /^[=+\-@\t\r]/.test(brut) ? `'${brut}` : brut
     return /[";\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
   }
   const entete = ['Référence', 'Date', 'Statut', 'Client', 'Téléphone', 'E-mail', 'Ville', 'Adresse', 'Instructions', 'Articles', 'Total (DH)']

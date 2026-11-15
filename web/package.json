@@ -21,7 +21,8 @@
     "robot:sante": "node scripts/robot-sante.mjs",
     "sauvegarde": "node --env-file-if-exists=.env --env-file-if-exists=../.env.admin scripts/sauvegarde.mjs",
     "sauvegarde:tester": "node --env-file-if-exists=.env --env-file-if-exists=../.env.admin scripts/sauvegarde-tester.mjs",
-    "guide:pdf": "node scripts/guide-pdf.mjs"
+    "guide:pdf": "node scripts/guide-pdf.mjs",
+    "guide:marketing": "node scripts/guide-pdf.mjs --marketing"
   },
   "dependencies": {
     "@fontsource/archivo-black": "^5.3.0",
@@ -35,7 +36,7 @@
     "lucide-react": "^0.468.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.28.0",
+    "react-router-dom": "^6.30.6",
     "recharts": "^2.15.4",
     "tailwind-merge": "^2.6.0",
     "zustand": "^5.0.2"
@@ -57,11 +58,11 @@
     "jsdom": "^25.0.1",
     "lighthouse": "^13.6.0",
     "pagedjs": "^0.4.3",
-    "postcss": "^8.4.49",
-    "sharp": "^0.33.5",
+    "postcss": "^8.5.33",
+    "sharp": "^0.35.5",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.6.3",
     "vite": "^5.4.21",
-    "vitest": "^2.1.9"
+    "vitest": "^3.2.7"
   }
 }
