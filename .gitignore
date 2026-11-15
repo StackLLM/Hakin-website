@@ -14,6 +14,8 @@ CLAUDE.local.md
 
 # Outil interne de collecte d'images (151 Mo) : reste sur le disque, hors du dépôt
 Scrapping/
+# Médias récupérés d'Instagram par hakim-medias-web (instaloader / yt-dlp) : restent sur le disque
+web/medias/Datascrapped/
 
 # Système et éditeurs
 *.log

@@ -42,6 +42,8 @@ function Heros() {
         <motion.img src="/images/campagne/hero-modele-640.webp" srcSet="/images/campagne/hero-modele-640.webp 640w, /images/campagne/hero-modele-1280.webp 1060w"
           sizes="(min-width: 640px) 46vw, 88vw" alt="Homme en veste en jean et sweat à capuche écru, lunettes de soleil, assis sur un muret"
           className="masque-heros h-full w-full object-cover object-top"
+          // Plus grand élément affiché sur mobile (LCP) : téléchargé en priorité. Écrit en minuscules (React 18 ne connaît pas `fetchPriority`).
+          {...{ fetchpriority: 'high' }}
           initial={actives ? { opacity: 0, scale: 1.06 } : false} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.8, ease: EASE_MAISON }} />
       </motion.div>
 
@@ -145,7 +147,7 @@ function ParType() {
                   <span className="carte-type-fleche grid h-[46px] w-[46px] place-items-center rounded-full bg-accent text-encre"><ArrowRight className="h-[18px] w-[18px]" strokeWidth={2} /></span>
                 </div>
                 {c.image && <img src={srcImage(c.image, 480)} srcSet={srcsetImage(c.image)} sizes="(min-width: 768px) 22vw, 60vw" alt="" loading="lazy"
-                  className="carte-type-img pointer-events-none absolute left-1/2 top-[46%] z-[1] aspect-[4/5] w-[46%] max-w-[260px] rounded-[18px] object-cover shadow-[0_30px_30px_-10px_rgb(0_0_0/0.35)]" />}
+                  className="carte-type-img pointer-events-none absolute left-1/2 top-[46%] z-[1] aspect-[4/5] w-[46%] max-w-[260px] rounded-[18px] object-cover shadow-[var(--ombre-photo-type)]" />}
                 <div className="relative z-[2]">
                   <p className="mb-1.5 font-display uppercase leading-[0.95] tracking-[-0.01em]" style={{ fontSize: 'clamp(28px, 3vw, 42px)' }}>{c.nom}</p>
                   <p className="font-mono text-[11px] uppercase tracking-[0.18em] opacity-70">{c.n} pièce{c.n > 1 ? 's' : ''}</p>

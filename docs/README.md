@@ -3,7 +3,7 @@
 | Je veux… | Lire |
 |---|---|
 | Lancer le projet, les commandes | [`../README.md`](../README.md) |
-| Mettre en ligne, surveiller, sauvegarder, connaître les coûts | [guide PDF](../DEPLOIEMENT_ET_SUPERVISION/GUIDE_DEPLOIEMENT_HEBERGEMENT_MAINTENANCE_HMODE.pdf) et [`../DEPLOIEMENT_ET_SUPERVISION/`](../DEPLOIEMENT_ET_SUPERVISION/) (étude, supervision, checklist) ; source du PDF : [`guide-pdf/`](guide-pdf/) |
+| Mettre en ligne, surveiller, sauvegarder, connaître les coûts | [guide PDF](../DEPLOIEMENT_ET_SUPERVISION/GUIDE_DEPLOIEMENT_HEBERGEMENT_MAINTENANCE_HMODE.pdf) et [`../DEPLOIEMENT_ET_SUPERVISION/`](../DEPLOIEMENT_ET_SUPERVISION/) (étude, supervision, checklist, [rapport d'audit avant production](../DEPLOIEMENT_ET_SUPERVISION/RAPPORT_AUDIT_PREPRODUCTION.md)) ; source du PDF : [`guide-pdf/`](guide-pdf/) |
 | Lancer la marque sur les réseaux (identité, prompts, stratégies, publicité) | [`../marketing/INDEX.md`](../marketing/INDEX.md) |
 | Comprendre comment le site est construit | [`architecture.md`](architecture.md) |
 | Savoir pourquoi un choix a été fait | [`decisions/`](decisions/) (ADR, ci-dessous) |
@@ -25,7 +25,8 @@
 | [0006](decisions/0006-administration.md) | Administration `/admin` à trois champs, droits vérifiés par la base | en vigueur |
 | [0007](decisions/0007-architecture-et-deploiement.md) | Un seul site statique + Supabase, dépôt rangé, CI/CD | en vigueur |
 | [0008](decisions/0008-supervision-et-commerce.md) | Supervision sans serveur, rôles admin, limites, demandes WhatsApp, aperçus de partage | en vigueur ; complétée par 0009 |
-| [0009](decisions/0009-sante-429-journal.md) | Point de santé public, réponses 429, journal unifié, sauvegardes testées par script, guide PDF | en vigueur |
+| [0009](decisions/0009-sante-429-journal.md) | Point de santé public, réponses 429, journal unifié, sauvegardes testées par script, guide PDF | en vigueur ; écrans revus par 0010 |
+| [0010](decisions/0010-admin-application-technique.md) | Administration en application technique : thème propre, composants Lightswind, supervision en 5 pages | en vigueur |
 
 Nouvelle décision : copier [`decisions/0000-modele.md`](decisions/0000-modele.md) avec le numéro suivant.
 

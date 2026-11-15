@@ -16,6 +16,7 @@ import { PageProduit } from './features/produit/PageProduit'
 import { useSession } from './state/session'
 import { brancherSynchroCompte } from './state/synchroCompte'
 import { chargerDonnees, useDonnees } from './lib/donnees'
+import { titrePage } from './lib/titres'
 
 /** Chargement par page. Accueil, boutique et fiche produit restent dans le paquet principal : ce sont les pages
  *  d'arrivée (liens Insta, FB, WhatsApp), leur première image ne doit pas attendre un second fichier (mesuré : LCP mobile
@@ -94,6 +95,8 @@ export default function App() {
   // Fréquentation (supervision) : une page vue par changement d'adresse, hors administration.
   useEffect(() => { compterVisite(location.pathname) }, [location.pathname])
   const versionDonnees = useDonnees(s => s.version)
+  // Titre de l'onglet propre à chaque page (sinon il garde celui de la première page ouverte).
+  useEffect(() => { document.title = titrePage(location.pathname, location.search) }, [location.pathname, location.search, versionDonnees])
   // Page de connexion plein écran comme la référence : ni en-tête, ni pied, ni repère latéral.
   const pleinEcran = location.pathname.startsWith('/connexion')
   // Administration : application à part (sa propre coque), hors des transitions de page du site

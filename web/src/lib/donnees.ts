@@ -14,7 +14,15 @@ export const useDonnees = create<EtatDonnees>(() => ({ version: 0, source: 'fich
 const CLE_COPIE = 'hmode-catalogue'
 interface Copie { v: 1; produits: Produit[]; boutique: ReglagesBoutique | null; textes: Partial<Textes> | null }
 
-function appliquer(c: Omit<Copie, 'v'>, source: SourceDonnees) {
+let dernierContenu: string | null = null
+
+/** Applique un catalogue. Contenu identique au dernier appliqué (cas courant : la base répond la même chose que la
+ *  copie de l'appareil) : `version` ne bouge pas, sinon la page se remonterait et le visiteur perdrait sa taille,
+ *  sa quantité ou son message d'erreur. Exporté pour les tests. */
+export function appliquerDonnees(c: Omit<Copie, 'v'>, source: SourceDonnees) {
+  const contenu = JSON.stringify([c.produits, c.boutique, c.textes])
+  if (contenu === dernierContenu) { if (useDonnees.getState().source !== source) useDonnees.setState({ source }); return }
+  dernierContenu = contenu
   if (c.produits.length) appliquerCatalogue(c.produits)
   appliquerReglages(c.boutique, c.textes)
   useDonnees.setState(s => ({ version: s.version + 1, source }))
@@ -26,7 +34,7 @@ export async function chargerDonnees() {
   try {
     const brut = localStorage.getItem(CLE_COPIE)
     const copie = brut ? JSON.parse(brut) as Copie : null
-    if (copie?.v === 1 && Array.isArray(copie.produits)) appliquer(copie, 'copie')
+    if (copie?.v === 1 && Array.isArray(copie.produits)) appliquerDonnees(copie, 'copie')
   } catch { /* copie illisible : ignorée */ }
 
   const sb = await obtenirSupabase()
@@ -43,7 +51,7 @@ export async function chargerDonnees() {
     })
     const reglages = Object.fromEntries(((rReglages.data ?? []) as { cle: string; valeur: unknown }[]).map(r => [r.cle, r.valeur]))
     const c = { produits, boutique: (reglages.boutique ?? null) as ReglagesBoutique | null, textes: (reglages.textes ?? null) as Partial<Textes> | null }
-    appliquer(c, 'base')
+    appliquerDonnees(c, 'base')
     try { localStorage.setItem(CLE_COPIE, JSON.stringify({ v: 1, ...c })) } catch { /* stockage plein ou bloqué */ }
   } catch (e) {
     console.warn('[catalogue] base injoignable, données locales gardées :', e)

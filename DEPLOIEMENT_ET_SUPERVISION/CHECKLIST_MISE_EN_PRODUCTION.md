@@ -24,9 +24,9 @@
 - [ ] Créer un compte client avec votre adresse ; confirmer ; tester « mot de passe oublié » (ch. 17)
 
 ### Surveillance
-- [ ] `SANTE_JETON` : `openssl rand -hex 24` → `web/.env` → `npm run sante:sql` → SQL Editor → secret GitHub `SANTE_JETON` (ch. 10)
-- [ ] GitHub → Actions → variables `SITE_URL`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` (ch. 10)
-- [ ] GitHub → Actions → **Surveillance → Run workflow** : vert, puis visible dans l'admin (ch. 10)
+- [x] `SANTE_JETON` : `web/.env` → empreinte en base → secret GitHub `SANTE_JETON` (14/11) (ch. 10)
+- [x] GitHub → Actions → variables `SITE_URL`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` (14/11) (ch. 10)
+- [x] GitHub → Actions → **Surveillance → Run workflow** : vert, 9 contrôles sur 9 enregistrés en base (14/11) (ch. 10)
 - [ ] github.com → Settings → Notifications → Actions → *Only notify for failed workflows* (ch. 13)
 - [ ] Service externe (UptimeRobot ou Better Stack, conditions d'usage commercial lues) : 2 sondes, site et `rpc/sante` (ch. 11)
 - [ ] Facultatif : build hook Netlify → secret `NETLIFY_BUILD_HOOK` (ch. 10)

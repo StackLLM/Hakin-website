@@ -64,12 +64,14 @@ test.describe('parcours d\'achat dans un vrai navigateur', () => {
 })
 
 test.describe('menu principal', () => {
-  const LIENS = ['Accueil', 'Boutique', 'Hommes', 'Femmes', 'Soldes']
+  // « Soldes » n'apparaît que si une pièce est en solde : aucune dans les prix d'essai (donnees/prix-test.json).
+  const LIENS = ['Accueil', 'Boutique', 'Hommes', 'Femmes']
 
   test('un seul lien souligné, celui de la page', async ({ page, isMobile }) => {
     test.skip(isMobile, 'menu en ligne dès 1024 px ; le menu mobile est testé à part')
     await page.goto('/')
     const nav = page.getByRole('navigation', { name: 'Navigation principale' })
+    await expect(nav.getByRole('link', { name: 'Soldes' })).toHaveCount(0)
     for (const nom of LIENS) {
       await nav.getByRole('link', { name: nom, exact: true }).click()
       await expect(nav.locator('[aria-current="page"]')).toHaveCount(1)

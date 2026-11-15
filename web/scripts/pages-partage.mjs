@@ -1,6 +1,6 @@
 // Aperçus des liens partagés (WhatsApp, Facebook, Instagram en message) : lancé après `vite build`.
 // Les robots de ces plateformes ne lisent pas le JavaScript : ils lisent les balises <meta property="og:…"> du HTML reçu.
-// Ce script écrit donc, pour chaque pièce publiée, une page dist/produit/<slug>/index.html (le même site, avec son titre,
+// Ce script écrit donc, pour chaque pièce publiée, une page dist/produit/<slug>.html (le même site, avec son titre,
 // sa description et son image) et une image JPEG 1200×630 de moins de 300 Ko dans dist/partage/.
 // Catalogue : lu dans Supabase (pièces publiées) si les variables publiques sont là, sinon src/data/produits.json.
 // Sans adresse du site (SITE_URL, ou URL fournie par Netlify), rien n'est fait : une image d'aperçu doit être absolue.
@@ -111,8 +111,9 @@ for (const p of produits) {
   const prix = p.prixDH ? dh(p.prixDH) : 'Prix sur demande'
   const nom = p.marque ? `${p.marque} — ${p.nom}` : p.nom
   const description = [prix, (p.description ?? '').replace(/\s+/g, ' ').trim().slice(0, 140), 'Paiement à la livraison.'].filter(Boolean).join(' · ')
-  await mkdir(join(dist, 'produit', p.slug), { recursive: true })
-  await writeFile(join(dist, 'produit', p.slug, 'index.html'), avecBalises(gabarit, {
+  // <slug>.html et non <slug>/index.html : Netlify sert /produit/<slug> tel quel, sans redirection vers /produit/<slug>/.
+  await mkdir(join(dist, 'produit'), { recursive: true })
+  await writeFile(join(dist, 'produit', `${p.slug}.html`), avecBalises(gabarit, {
     titre: `${nom} · H MODE`, description, url: `${site}/produit/${p.slug}`, type: 'product',
     image: `${site}/${image ? fichierImage : 'partage/hmode.jpg'}`, alt: nom,
   }))

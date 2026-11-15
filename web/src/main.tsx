@@ -21,7 +21,8 @@ installerSurveillance()
 
 createRoot(document.getElementById('racine')!).render(
   <StrictMode>
-    <BrowserRouter>
+    {/* Comportements de React Router v7 adoptés dès maintenant (plus d'avertissement dans la console en ligne). */}
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <FournisseurAnimations>
         <FournisseurNotifications>
           <GardeErreur>
