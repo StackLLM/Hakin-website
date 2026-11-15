@@ -4,7 +4,7 @@ import { motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowDown, ArrowRight, Banknote, MessageCircle, ShieldCheck, ShoppingBag } from 'lucide-react'
 import { BoutonLien, IconeFacebook, IconeInstagram, IconeWhatsApp, Monogramme, Revelation, styleBouton } from '@/design-system'
 import { CarteProduit } from '@/components/CarteProduit'
-import { boutique, categoriesActives, produits, srcImage, srcsetImage } from '@/lib/catalogue'
+import { boutique, categoriesActives, imageEstPackshot, produits, srcImage, srcsetImage } from '@/lib/catalogue'
 import { lienWhatsApp } from '@/lib/whatsapp'
 import { LoopingWords } from '@/components/lightswind/looping-words'
 import { CountUp } from '@/components/lightswind/count-up'
@@ -147,7 +147,9 @@ function ParType() {
                   <span className="carte-type-fleche grid h-[46px] w-[46px] place-items-center rounded-full bg-accent text-encre"><ArrowRight className="h-[18px] w-[18px]" strokeWidth={2} /></span>
                 </div>
                 {c.image && <img src={srcImage(c.image, 480)} srcSet={srcsetImage(c.image)} sizes="(min-width: 768px) 22vw, 60vw" alt="" loading="lazy"
-                  className="carte-type-img pointer-events-none absolute left-1/2 top-[46%] z-[1] aspect-[4/5] w-[46%] max-w-[260px] rounded-[18px] object-cover shadow-[var(--ombre-photo-type)]" />}
+                  className={`carte-type-img pointer-events-none absolute left-1/2 top-[46%] z-[1] rounded-[18px] shadow-[var(--ombre-photo-type)] ${imageEstPackshot(c.image, c.slug)
+                    ? 'aspect-[4/3] w-[50%] max-w-[320px] bg-blanc object-contain p-[5%] md:w-[60%]' // packshot (chaussure) : photo entière, sans recadrage
+                    : 'aspect-[4/5] w-[46%] max-w-[260px] object-cover'}`} />}
                 <div className="relative z-[2]">
                   <p className="mb-1.5 font-display uppercase leading-[0.95] tracking-[-0.01em]" style={{ fontSize: 'clamp(28px, 3vw, 42px)' }}>{c.nom}</p>
                   <p className="font-mono text-[11px] uppercase tracking-[0.18em] opacity-70">{c.n} pièce{c.n > 1 ? 's' : ''}</p>

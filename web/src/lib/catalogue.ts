@@ -59,6 +59,8 @@ export function produitsLies(p: Produit, n = 4): Produit[] {
 const FONDS_CLAIRS = new Set<string>(fondsClairsJson as string[])
 /** Photo d'objet seul sur fond clair (packshot) : affichée entière, centrée, détourée sur le disque de la carte. */
 export const estPackshot = (p: Produit) => p.categorie === 'sneakers' || FONDS_CLAIRS.has(p.images[0]?.src)
+/** Même règle pour une image seule (carte d'un type) : chaussure, ou photo repérée sur fond clair uni. */
+export const imageEstPackshot = (src: string, categorie?: string) => categorie === 'sneakers' || FONDS_CLAIRS.has(src)
 
 /** srcset WebP à partir d'un chemin sans suffixe. */
 export const srcImage = (src: string, l: 480 | 960 = 960) => `${src}-${l}.webp`
