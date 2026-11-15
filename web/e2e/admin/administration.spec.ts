@@ -122,6 +122,8 @@ const ECRANS = ['/admin', '/admin/produits', '/admin/produits/nouveau', '/admin/
   '/admin/textes', '/admin/journal', '/admin/supervision', '/admin/supervision/sante', '/admin/supervision/journaux', '/admin/supervision/securite', '/admin/supervision/maintenance']
 
 test('accessibilité WCAG 2.2 AA de chaque écran de l\'administration (axe)', async ({ page }) => {
+  // 14 écrans analysés par axe : 17 s sur un poste, plus d'une minute sur un serveur de CI lent.
+  test.setTimeout(180_000)
   await seConnecter(page, true)
   for (const ecran of ECRANS) {
     await page.goto(ecran)
@@ -132,6 +134,7 @@ test('accessibilité WCAG 2.2 AA de chaque écran de l\'administration (axe)', a
 })
 
 test('mobile 375 px : chaque écran sans défilement horizontal, menu en tiroir, recherche Ctrl+K', async ({ page }) => {
+  test.setTimeout(180_000) // 14 écrans, comme le test d'accessibilité
   await seConnecter(page)
   await page.setViewportSize({ width: 375, height: 812 })
   for (const ecran of ECRANS) {
