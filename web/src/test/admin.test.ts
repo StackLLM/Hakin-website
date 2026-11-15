@@ -96,6 +96,16 @@ describe('administration : commandes', () => {
     expect(ligne).toContain('T-shirt (noir, M) × 2;900')
   })
 
+  it('export tableur : une valeur écrite par un client ne devient jamais une formule', () => {
+    const csv = csvCommandes([commande({ nom: '=HYPERLINK("https://pirate.example";"x")', adresse: '@SUM(1)', instructions: '-2+3', telephone: '+212612345678' })])
+    const ligne = csv.split('\r\n')[1]
+    expect(ligne).toContain(`"'=HYPERLINK(""https://pirate.example"";""x"")"`)
+    expect(ligne).toContain(";'@SUM(1);")
+    expect(ligne).toContain(";'-2+3;")
+    expect(ligne).toContain(";'+212612345678;")
+    expect(ligne).not.toMatch(/;=|;@|;\+|;-/)
+  })
+
   it('numéro WhatsApp du client au format international', () => {
     expect(numeroWhatsAppClient('06 12 34 56 78')).toBe('212612345678')
     expect(numeroWhatsAppClient('+212 7 00 00 00 00')).toBe('212700000000')

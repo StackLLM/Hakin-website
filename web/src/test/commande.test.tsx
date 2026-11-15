@@ -90,7 +90,7 @@ describe('checkout : commande enregistrée en base puis WhatsApp, paiement à la
     expect(screen.queryByRole('heading', { name: 'Commande enregistrée' })).not.toBeInTheDocument()
   })
 
-  it('limite atteinte (HTTP 429 de la base) : message « trop de commandes », pas d\'erreur API signalée', async () => {
+  it('limite atteinte (HTTP 429 de la base) : message « plusieurs commandes depuis cet appareil », pas d\'erreur API signalée', async () => {
     const u = userEvent.setup()
     vi.spyOn(window, 'open').mockReturnValue({ opener: {}, location: { href: '' }, close: vi.fn() } as unknown as Window)
     rpc.mockResolvedValue({ data: null, error: { message: '' }, status: 429 })
@@ -98,7 +98,7 @@ describe('checkout : commande enregistrée en base puis WhatsApp, paiement à la
     monter('/commande')
     await remplir(u)
     await u.click(screen.getByRole('button', { name: 'Passer la commande' }))
-    expect(await screen.findByRole('alert')).toHaveTextContent('Trop de commandes envoyées depuis cet appareil')
+    expect(await screen.findByRole('alert')).toHaveTextContent('déjà envoyé plusieurs commandes depuis cet appareil')
     expect(usePanier.getState().lignes).toHaveLength(1)
   })
 

@@ -1,4 +1,4 @@
-// Crée (ou met à jour) le compte admin et sa clé de sécurité, à partir de trois lignes de web/.env :
+// Crée (ou met à jour) le compte admin et sa clé de sécurité, à partir de trois lignes de .env.admin (racine du projet, hors de web/) :
 //   ADMIN_EMAIL=…              e-mail de connexion à /admin
 //   ADMIN_MOT_DE_PASSE=…       mot de passe
 //   ADMIN_CLE=…                clé de sécurité, au format de votre choix
@@ -18,9 +18,9 @@ const fuite = Object.keys(process.env).filter(k => k.startsWith('VITE_') && /ADM
 
 const erreurs = []
 if (fuite.length) erreurs.push(`${fuite.join(', ')} : une variable VITE_ part dans le site, publique. Retirez le préfixe VITE_.`)
-if (!/^[^\s@']+@[^\s@']+\.[^\s@']+$/.test(email)) erreurs.push('ADMIN_EMAIL absent ou invalide dans web/.env.')
-if (!motDePasse) erreurs.push('ADMIN_MOT_DE_PASSE absent dans web/.env.')
-if (!cle) erreurs.push('ADMIN_CLE absente dans web/.env.')
+if (!/^[^\s@']+@[^\s@']+\.[^\s@']+$/.test(email)) erreurs.push('ADMIN_EMAIL absent ou invalide dans .env.admin (racine du projet).')
+if (!motDePasse) erreurs.push('ADMIN_MOT_DE_PASSE absent dans .env.admin (racine du projet).')
+if (!cle) erreurs.push('ADMIN_CLE absente dans .env.admin (racine du projet).')
 if (!['technique', 'commerce'].includes(role)) erreurs.push('ADMIN_ROLE doit valoir « technique » ou « commerce ».')
 if (erreurs.length) {
   console.error(erreurs.map(e => `✗ ${e}`).join('\n'))

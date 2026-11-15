@@ -23,7 +23,7 @@ console.log(`Test de restauration : ${choisi}`)
 
 async function noter(type, note) {
   const url = process.env.VITE_SUPABASE_URL, cle = process.env.VITE_SUPABASE_PUBLISHABLE_KEY, jeton = process.env.SANTE_JETON
-  if (!url || !cle || !jeton) { console.log('ℹ SANTE_JETON absent de web/.env : notez le résultat à la main (admin → Supervision → Maintenance).'); return }
+  if (!url || !cle || !jeton) { console.log('ℹ SANTE_JETON absent de .env.admin : notez le résultat à la main (admin → Supervision → Maintenance).'); return }
   try {
     const r = await fetch(`${url}/rest/v1/rpc/noter_sauvegarde_script`, {
       method: 'POST', headers: { apikey: cle, Authorization: `Bearer ${cle}`, 'Content-Type': 'application/json' },

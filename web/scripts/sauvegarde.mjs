@@ -2,7 +2,7 @@
 // Prérequis : `npx supabase login` fait une fois, et le projet relié (`npx supabase link`), à la racine du dépôt.
 // Produit ~/Documents/HMODE-sauvegardes/<date>/ : roles.sql, schema.sql, donnees.sql, photos/ (stockage), manifeste.json
 // (taille et empreinte SHA-256 de chaque fichier, nombre de lignes de chaque table au moment de la copie).
-// Note ensuite la sauvegarde dans l'admin (Supervision → Maintenance) avec le jeton du robot (SANTE_JETON de web/.env),
+// Note ensuite la sauvegarde dans l'admin (Supervision → Maintenance) avec le jeton du robot (SANTE_JETON de .env.admin),
 // sinon dit de la noter à la main. Ne lit que des données : rien n'est modifié en ligne. N'affiche aucune donnée.
 // Le dossier contient des données de clients : il reste hors du dépôt, dossier réservé à votre compte (droits 700).
 import { execFileSync } from 'node:child_process'
@@ -21,7 +21,7 @@ const lireJson = sortie => JSON.parse(sortie.slice(sortie.indexOf('{')))
 
 async function noter(type, note) {
   const url = process.env.VITE_SUPABASE_URL, cle = process.env.VITE_SUPABASE_PUBLISHABLE_KEY, jeton = process.env.SANTE_JETON
-  if (!url || !cle || !jeton) { console.log('ℹ SANTE_JETON absent de web/.env : notez cette sauvegarde à la main (admin → Supervision → Maintenance).'); return }
+  if (!url || !cle || !jeton) { console.log('ℹ SANTE_JETON absent de .env.admin : notez cette sauvegarde à la main (admin → Supervision → Maintenance).'); return }
   try {
     const r = await fetch(`${url}/rest/v1/rpc/noter_sauvegarde_script`, {
       method: 'POST', headers: { apikey: cle, Authorization: `Bearer ${cle}`, 'Content-Type': 'application/json' },

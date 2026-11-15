@@ -171,14 +171,35 @@ psql(`update public.limites set maximum = ${Number(maxAvant) || 5} where action 
 psql(`delete from public.limites_evenements where action = 'commande'`)
 verdict(lim1.data === `HM-LIM1-${suffixe}` && lim2.data === null && lim2.status === 429 && lim2Base === '0' && traceLim === '1/2',
   'limite : 2ᵉ commande refusée (HTTP 429), rien enregistré, blocage noté', `${lim1.data} / ${lim2.status} / ${traceLim}`)
-// Plafond global (tous visiteurs) : l'en-tête d'adresse peut être falsifié, ce plafond tient quand même
+// Plafond global (tous visiteurs, audit du 15/11) : un afflux ne bloque plus les autres clients. La commande passe,
+// marquée « à vérifier » pour l'admin ; seule la limite de CE visiteur refuse (429).
 const globalAvant = psql(`select coalesce(maximum_global::text, 'null') from public.limites where action = 'commande'`)
 psql(`update public.limites set maximum_global = 1 where action = 'commande'`)
 const glo1 = await A.sb.rpc('passer_commande', commande(`HM-GLO1-${suffixe}`))
 const glo2 = await visiteur.rpc('passer_commande', commande(`HM-GLO2-${suffixe}`))
 psql(`update public.limites set maximum_global = ${globalAvant} where action = 'commande'`)
 psql(`delete from public.limites_evenements where action = 'commande'`)
-verdict(glo1.data === `HM-GLO1-${suffixe}` && glo2.data === null && glo2.status === 429, 'limite : plafond global atteint, la commande suivante est refusée (429)', `${glo1.data} / ${glo2.status}`)
+const marques = psql(`select string_agg(reference || ':' || a_verifier, ',' order by reference) from public.commandes where reference in ('HM-GLO1-${suffixe}', 'HM-GLO2-${suffixe}')`)
+verdict(glo1.data === `HM-GLO1-${suffixe}` && glo2.data === `HM-GLO2-${suffixe}` && glo2.status !== 429 && marques === `HM-GLO1-${suffixe}:false,HM-GLO2-${suffixe}:true`,
+  'limite : plafond global dépassé, la commande passe quand même, marquée « à vérifier »', `${glo2.status} / ${marques}`)
+// En-tête d'adresse falsifié : la 1ʳᵉ adresse de X-Forwarded-For est écrite par le visiteur ; elle ne doit pas
+// faire de lui un « nouveau visiteur » à chaque requête.
+psql(`update public.limites set maximum = 1 where action = 'commande'`)
+const faux = h => createClient(url, cle, { auth: { persistSession: false, autoRefreshToken: false }, global: { headers: { 'x-forwarded-for': h } } })
+const xff1 = await faux('203.0.113.1').rpc('passer_commande', commande(`HM-XFF1-${suffixe}`))
+const xff2 = await faux('203.0.113.2').rpc('passer_commande', commande(`HM-XFF2-${suffixe}`))
+psql(`update public.limites set maximum = ${Number(maxAvant) || 5} where action = 'commande'`)
+psql(`delete from public.limites_evenements where action = 'commande'`)
+verdict(xff1.data === `HM-XFF1-${suffixe}` && xff2.status === 429, 'limite : changer l\'en-tête X-Forwarded-For ne contourne pas la limite par visiteur', `${xff1.data} / ${xff2.status}`)
+// republication_necessaire : appelable sans compte, elle passe désormais par la limite du robot avant bcrypt
+const robotAvant = psql(`select maximum from public.limites where action = 'controle_robot'`)
+psql(`delete from public.limites_evenements where action = 'controle_robot'`)
+psql(`update public.limites set maximum = 1 where action = 'controle_robot'`)
+const repLim1 = await visiteur.rpc('republication_necessaire', { jeton: 'faux', construit_le: new Date().toISOString() })
+const repLim2 = await visiteur.rpc('republication_necessaire', { jeton: 'faux', construit_le: new Date().toISOString() })
+psql(`update public.limites set maximum = ${Number(robotAvant) || 20} where action = 'controle_robot'`)
+psql(`delete from public.limites_evenements where action = 'controle_robot'`)
+verdict(repLim1.data === false && repLim2.status === 429, 'robot : republication_necessaire limitée avant tout calcul (429 au-delà)', `${repLim1.data} / ${repLim2.status}`)
 const evtV = await visiteur.from('limites_evenements').select('id')
 const evtA = await A.sb.from('limites_evenements').select('id')
 verdict((Boolean(evtV.error) || evtV.data?.length === 0) && evtA.data?.length === 0, 'limite : événements invisibles d\'un visiteur et d\'un client')
@@ -388,7 +409,7 @@ verdict(sauvFaux.data?.ok === false && sauvScript.data?.ok === true
   'sauvegardes : notées par le script avec le jeton du robot, refusées sans', JSON.stringify(sauvFaux.data))
 psql(`insert into public.controles_sante (source, cible, ok, statut_http, duree_ms, cree_le) values
   ('robot', 'etat ok ${suffixe}', true, 200, 100, now()), ('robot', 'base : etat lent ${suffixe}', true, 200, 2500, now()),
-  ('robot', 'etat panne ${suffixe}', false, 503, 50, now()), ('robot', 'etat vieux ${suffixe}', true, 200, 100, now() - interval '2 hours'),
+  ('robot', 'etat panne ${suffixe}', false, 503, 50, now()), ('robot', 'etat vieux ${suffixe}', true, 200, 100, now() - interval '3 hours'),
   ('robot', 'etat rechute ${suffixe}', false, 0, 50, now() - interval '1 hour'), ('robot', 'etat rechute ${suffixe}', true, 200, 100, now())`)
 const etatT = await B.sb.rpc('etat_supervision')
 const st = c => etatT.data?.services?.find(s => s.cible === `${c} ${suffixe}`)?.statut

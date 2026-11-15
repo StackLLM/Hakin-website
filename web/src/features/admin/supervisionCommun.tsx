@@ -12,7 +12,7 @@ import { EnTeteAdmin, ErreurAdmin, SqueletteAdmin, useChargement } from './commu
 export const DEPOT = 'https://github.com/oussamaalmouallim/Hakin-website'
 const refProjet = (import.meta.env.VITE_SUPABASE_URL ?? '').match(/^https:\/\/([a-z0-9]+)\.supabase\.co/)?.[1]
 export const tableauSupabase = refProjet ? `https://supabase.com/dashboard/project/${refProjet}` : 'https://supabase.com/dashboard/projects'
-export const ROBOT_EN_RETARD_MIN = 75 // le robot passe toutes les 30 min ; au-delà de 75 min sans nouvelles, l'état devient « inconnu »
+export const ROBOT_EN_RETARD_MIN = 135 // le robot passe toutes les heures ; au-delà de 135 min sans nouvelles, l'état devient « inconnu » (migration robot_horaire)
 
 export const depuis = (iso: string) => {
   const min = Math.round((Date.now() - new Date(iso).getTime()) / 60000)

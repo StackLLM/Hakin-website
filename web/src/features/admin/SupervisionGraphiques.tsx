@@ -14,7 +14,7 @@ const moyenne = (v: (number | null)[]) => { const x = v.filter((n): n is number 
 
 export function GraphiquePerformance({ points, hauteur = 240 }: { points: EtatSupervision['tendance']; hauteur?: number }) {
   const actives = useAnimationsActives()
-  if (points.length < 2) return <EtatVide Icone={BarChart3} titre="Pas encore de tendance" texte="Il faut des contrôles sur au moins deux heures. Le robot en fait un toutes les 30 minutes une fois activé." />
+  if (points.length < 2) return <EtatVide Icone={BarChart3} titre="Pas encore de tendance" texte="Il faut des contrôles sur au moins deux heures. Le robot en fait un par heure une fois activé." />
   const config: ChartConfig = { site_ms: { label: 'Site', couleur: SERIE.site, format: v => `${v} ms` }, base_ms: { label: 'API et base', couleur: SERIE.api, format: v => `${v} ms` } }
   const echecs = points.reduce((a, p) => a + p.echecs, 0)
   return (

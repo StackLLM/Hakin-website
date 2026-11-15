@@ -117,7 +117,7 @@ export async function enregistrerReglage(cle: 'boutique' | 'textes', valeur: obj
 // ── Commandes ───────────────────────────────────────────────────────────────────────────────────
 export async function listerCommandes(): Promise<CommandeAdmin[]> {
   return verifier(await (await base()).from('commandes')
-    .select('reference, cree_le, statut, sous_total_dh, nom, telephone, email, ville, adresse, instructions, lignes_commande(slug, nom, coloris, taille, quantite, prix_dh)')
+    .select('reference, cree_le, statut, sous_total_dh, a_verifier, nom, telephone, email, ville, adresse, instructions, lignes_commande(slug, nom, coloris, taille, quantite, prix_dh)')
     .order('cree_le', { ascending: false })) as CommandeAdmin[]
 }
 export async function changerStatut(reference: string, statut: Statut) {
