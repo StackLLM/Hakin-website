@@ -77,7 +77,7 @@ Dans `web/` :
 | `npm run test:e2e` | Playwright du site (serveur de test 6014, sans Supabase) |
 | `npm run test:supabase` · `npm run test:e2e:admin` | vrais comptes et admin, sur Supabase **local** (`npx supabase start`) |
 | `npm run images` · `npm run logo` | photos WebP · logo et icônes |
-| `npm run admin:sql` | SQL qui crée le compte admin et sa clé, depuis `web/.env` (à coller dans Supabase) ; `ADMIN_ROLE=commerce` devant pour un compte sans supervision |
+| `npm run admin:sql` | SQL qui crée le compte admin et sa clé, depuis `.env.admin` à la racine (à coller dans Supabase) ; `ADMIN_ROLE=commerce` devant pour un compte sans supervision |
 | `npm run sante:sql` · `npm run robot:sante` | jeton du robot de surveillance (SQL à coller) · lancer le robot à la main |
 
 ## Variables d'environnement (`web/.env`, jamais dans git)
@@ -86,8 +86,8 @@ Dans `web/` :
 |---|---|---|
 | `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` | `.env`, Netlify, variables GitHub | publiques : gravées dans le site |
 | `SITE_URL` | Netlify, variables GitHub | adresse finale, pour `sitemap.xml` |
-| `ADMIN_EMAIL`, `ADMIN_MOT_DE_PASSE`, `ADMIN_CLE` | `.env` seulement | compte admin, via `npm run admin:sql` ; jamais `VITE_` |
-| `SANTE_JETON` | `.env` + secret GitHub | jeton du robot de surveillance (`npm run sante:sql`) |
+| `ADMIN_EMAIL`, `ADMIN_MOT_DE_PASSE`, `ADMIN_CLE` | `.env.admin` à la racine seulement (hors de `web/`) | compte admin, via `npm run admin:sql` ; jamais `VITE_` |
+| `SANTE_JETON` | `.env.admin` à la racine + secret GitHub | jeton du robot de surveillance (`npm run sante:sql`) |
 | `NETLIFY_BUILD_HOOK` | secret GitHub, facultatif | le robot relance un build quand le catalogue change (aperçus de partage) |
 
 Modèle : `web/.env.example`.

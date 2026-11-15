@@ -20,9 +20,10 @@ export async function enregistrerCommande(reference: string, client: Coordonnees
     client: { nom: client.nom.trim(), telephone: client.telephone.trim(), email: client.email.trim(), ville: client.ville, adresse: client.adresse.trim(), instructions: client.instructions.trim() },
     lignes: lignes.map(l => ({ slug: l.slug, nom: l.nom, coloris: l.coloris, taille: l.taille, quantite: l.quantite, prix_dh: l.prixDH })),
   } })
-  // 429 = limite de commandes atteinte pour ce visiteur (la base répond « trop de requêtes ») : rien n'est enregistré.
+  // 429 = limite de CE visiteur atteinte (la base répond « trop de requêtes ») : rien n'est enregistré. Depuis le 15/11,
+  // un afflux général ne bloque plus personne (commande marquée « à vérifier ») : ce message ne concerne que ce visiteur.
   // null sans erreur = même cas, ancienne réponse de la base (avant la migration du 10/11).
-  if (status === 429 || (!error && data === null)) return { statut: 'erreur', message: 'Trop de commandes envoyées depuis cet appareil en peu de temps. Réessayez dans une heure, ou écrivez-nous sur WhatsApp.' }
+  if (status === 429 || (!error && data === null)) return { statut: 'erreur', message: 'Vous avez déjà envoyé plusieurs commandes depuis cet appareil dans l’heure. Pour en passer une autre tout de suite, écrivez-nous sur WhatsApp.' }
   if (error) {
     console.warn('[commande] enregistrement refusé :', error.message)
     signalerErreur('api', `Commande refusée : ${error.code ?? ''} ${error.message}`)

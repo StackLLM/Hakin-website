@@ -130,6 +130,7 @@ describe('comptes : connexion, inscription, session', () => {
   it('retour après connexion : chemins internes seulement', () => {
     expect(retourSur('/commande')).toBe('/commande')
     expect(retourSur('//pirate.example')).toBe('/compte')
+    expect(retourSur('/\\pirate.example')).toBe('/compte')
     expect(retourSur('https://pirate.example')).toBe('/compte')
     expect(retourSur(null)).toBe('/compte')
   })

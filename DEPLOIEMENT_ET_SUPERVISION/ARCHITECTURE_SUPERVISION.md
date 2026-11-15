@@ -14,7 +14,7 @@ H MODE n'a **pas de serveur à nous**. Le site est un ensemble de fichiers servi
 
 ```
  Service externe (UptimeRobot / Better Stack, 3-5 min) ──GET──▶ /rest/v1/rpc/sante ─┐      e-mail si panne
- Robot GitHub Actions (toutes les 30 min, :07 et :37)  ──────▶ site + API + Auth +  │      e-mail GitHub si échec
+ Robot GitHub Actions (toutes les heures, à :07)      ──────▶ site + API + Auth +  │      e-mail GitHub si échec
                                                                photos + WhatsApp     │
                                      └── enregistrer_controles(jeton) ──────────────▶│ Supabase
  Navigateurs des visiteurs ── signaler_erreur / compter_visite (limités, 429) ──────▶│  controles_sante, erreurs_site,
@@ -39,7 +39,7 @@ H MODE n'a **pas de serveur à nous**. Le site est un ensemble de fichiers servi
 | Sauvegarde par script `npm run sauvegarde` | **testée** sur la base en ligne le 10/11 (134 Ko, 62 produits) | dossier `~/Documents/HMODE-sauvegardes/2026-11-10_19h17` |
 | Restauration testée `npm run sauvegarde:tester` | **testée** : 26 tables identiques, 62 pièces lues à travers la RLS | sortie du script ; refus d'une copie modifiée vérifié |
 | Panne de la base | **testée en local** : robot en échec (code 1), point de santé sans réponse ; retour à la normale vu aussitôt | conteneur de base figé puis relancé |
-| Robot GitHub en ligne | **actif** depuis le 14/11 (toutes les 30 min) | premier passage : 9 contrôles sur 9 réussis, enregistrés en base |
+| Robot GitHub en ligne | **actif** depuis le 14/11 (toutes les heures depuis le 15/11) | premier passage : 9 contrôles sur 9 réussis, enregistrés en base |
 | Service externe (alerte en minutes) | **à créer** par vous | guide, chapitre 11 |
 | Migration `20261110120000_sante_et_journal.sql` en ligne | **appliquée le 10/11**, après sauvegarde | `npx supabase migration list` |
 
@@ -107,10 +107,10 @@ Rétention : 30 jours (contrôles, erreurs, visites, blocages), 90 jours (évén
 | Situation | Qui alerte | Délai | Coût |
 |---|---|---|---|
 | Site ou API ne répond plus | service externe sur `/` et `/rest/v1/rpc/sante` | 3 à 5 min | gratuit (conditions à vérifier) |
-| Base inaccessible, comptes, photos, WhatsApp | robot GitHub → e-mail | ≤ 30 min (retards possibles de GitHub) | gratuit |
+| Base inaccessible, comptes, photos, WhatsApp | robot GitHub → e-mail | ≤ 1 h (retards possibles de GitHub) | gratuit |
 | Lenteur répétée (3 × au-dessus du seuil) | robot | ≤ 1 h 30 | gratuit |
-| Erreurs en rafale (≥ 50 en 30 min), blocages (≥ 10 en 30 min) | robot | ≤ 30 min | gratuit |
-| Accès admin bloqué après 5 clés erronées | robot | ≤ 30 min | gratuit |
+| Erreurs en rafale (≥ 100 en 1 h), blocages (≥ 20 en 1 h) | robot | ≤ 1 h | gratuit |
+| Accès admin bloqué après 5 clés erronées | robot | ≤ 1 h | gratuit |
 | Sauvegarde > 8 jours, restauration non testée > 35 jours | robot, passage de 9 h | 1 fois par jour | gratuit |
 | Quotas Netlify / Supabase, mise en pause | e-mails des fournisseurs | selon eux | gratuit |
 

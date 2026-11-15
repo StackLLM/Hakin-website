@@ -12,7 +12,8 @@ import { useSession } from '@/state/session'
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const MDP_MIN = 8
 /** Retour après connexion : chemin interne seulement (jamais `//autre-site`). */
-export const retourSur = (v: string | null) => (v && v.startsWith('/') && !v.startsWith('//') ? v : '/compte')
+// Adresse interne seulement : « // » et « /\ » sont lus comme une autre adresse de site par les navigateurs.
+export const retourSur = (v: string | null) => (v && v.startsWith('/') && !/^\/[/\\]/.test(v) ? v : '/compte')
 
 /** Bouton principal de la référence : pleine largeur, encre, Archivo Black 13 px, grossit de 2 % au survol, 60 % pendant l'envoi. */
 function BoutonEnvoi({ envoi, children }: { envoi: boolean; children: ReactNode }) {

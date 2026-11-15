@@ -87,7 +87,7 @@ export function Commandes() {
                     <TableCell>{c.nom}<span className="block text-[12px] text-gris">{c.ville}</span></TableCell>
                     <TableCell className="tabular-nums text-gris">{c.lignes_commande.reduce((n, l) => n + l.quantite, 0)}</TableCell>
                     <TableCell className="text-right font-medium tabular-nums">{formatDH(c.sous_total_dh)}</TableCell>
-                    <TableCell><Pastille ton={tonStatut(c.statut)} point>{libelleStatut(c.statut)}</Pastille></TableCell>
+                    <TableCell><span className="flex flex-wrap gap-1.5"><Pastille ton={tonStatut(c.statut)} point>{libelleStatut(c.statut)}</Pastille>{c.a_verifier && <Pastille ton="alerte">À vérifier</Pastille>}</span></TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -120,6 +120,7 @@ function DetailCommande({ commande: c, onFermer, onStatut, onSupprimer }: {
         <div className="grid gap-8 md:grid-cols-2">
           <section>
             <h3 className="label mb-3 text-gris">Client</h3>
+            {c.a_verifier && <p className="mb-3 text-[13px] text-gris"><Pastille ton="alerte">À vérifier</Pastille> Reçue pendant un afflux de commandes (plafond horaire dépassé) : confirmez avec le client avant de la traiter.</p>}
             <p className="text-[15px]">{c.nom}</p>
             <p className="text-[14px] text-gris">{c.telephone}{c.email ? ` · ${c.email}` : ''}</p>
             <p className="mt-3 text-[14px]">{c.adresse}, {c.ville}</p>

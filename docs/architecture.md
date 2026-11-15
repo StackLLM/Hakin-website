@@ -23,7 +23,7 @@ directement à **Supabase** (base, comptes, photos). Aucun serveur à nous. Les 
    │ Postgres + RLS · Auth ·      │      │ boutique         │
    │ Storage (photos) · journal   │      └──────────────────┘
    └──────────────▲───────────────┘
-                  │ toutes les 30 min (jeton)
+                  │ toutes les heures (jeton)
    GitHub Actions « Surveillance » (robot) ──► build hook Netlify si le catalogue a changé
 ```
 
@@ -62,7 +62,7 @@ Hakin-website/
 └── start.sh · stop.sh · deploy.sh
 ```
 
-Hors git, sur le disque seulement : `Scrapping/` (outil interne de collecte d'images), `web/.env`, `web/rapports/`.
+Hors git, sur le disque seulement : `Scrapping/` (outil interne de collecte d'images), `web/.env` (valeurs publiques seulement), `.env.admin` (secrets admin et robot, hors de `web/`), `web/rapports/`.
 
 ## 3. Les parcours
 
@@ -86,7 +86,7 @@ chacun ne voit que les siens (RLS). Déconnexion = appareil vidé.
 ### Admin
 1. `/admin` a sa propre connexion à trois champs : e-mail, mot de passe, clé de sécurité (format libre).
 2. Le compte n'est jamais créé par le site : `npm run admin:sql` lit `ADMIN_EMAIL`, `ADMIN_MOT_DE_PASSE`, `ADMIN_CLE`
-   dans `web/.env` et produit le SQL à coller dans Supabase (empreintes bcrypt seulement).
+   dans `.env.admin` (racine du projet, hors du dossier servi par Vite) et produit le SQL à coller dans Supabase (empreintes bcrypt seulement).
 3. `deverrouiller_admin(cle)` compare la clé à son empreinte et déverrouille **cette session** pendant 12 h.
    5 erreurs = 15 min de blocage. Tout est écrit dans le journal.
 4. `est_admin()` exige compte admin **et** session déverrouillée. Toutes les politiques d'écriture s'en servent.
@@ -112,7 +112,7 @@ WhatsApp** (à traiter, traitée, sans suite) : ce ne sont jamais des commandes.
   `signaler_erreur` (limité).
 - **Pages vues** : `compterVisite` à chaque changement d'adresse (hors `/admin`), LCP joint à la première ; visiteur =
   empreinte hachée de l'adresse réseau (sel secret en base), jamais l'adresse.
-- **Santé** : le robot `web/scripts/robot-sante.mjs` (workflow `sante.yml`, toutes les 30 min) contrôle site, 404,
+- **Santé** : le robot `web/scripts/robot-sante.mjs` (workflow `sante.yml`, toutes les heures) contrôle site, 404,
   `version.json`, API, Auth, photos et WhatsApp, et écrit par `enregistrer_controles` (jeton haché). L'admin peut aussi
   contrôler depuis son navigateur (`noter_controles`).
 - **Version** : `vite.config.ts` grave la version (commit) dans le JavaScript et dans `/version.json`.
@@ -212,7 +212,7 @@ Les deux renvoient un **vrai 404** sur une adresse inconnue et mettent en cache 
 | `supabase.yml` | push sur `main`, à la demande | Supabase local dans la CI : migrations sur base vide, vrais comptes, RLS, Playwright admin |
 | `image.yml` | push sur `main`, tag `v*` | image publiée sur `ghcr.io/<compte>/hmode-web` |
 | `base.yml` | à la main seulement | migrations sur la base en ligne (essai à blanc par défaut, environnement « production ») |
-| `sante.yml` | toutes les 30 min, dès que `SITE_URL` existe | robot de surveillance ; échec = e-mail de GitHub |
+| `sante.yml` | toutes les heures (:07), dès que `SITE_URL` existe | robot de surveillance ; échec = e-mail de GitHub |
 
 Le compte admin n'est jamais créé par la CI.
 
