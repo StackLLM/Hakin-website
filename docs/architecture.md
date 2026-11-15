@@ -23,7 +23,7 @@ directement à **Supabase** (base, comptes, photos). Aucun serveur à nous. Les 
    │ Postgres + RLS · Auth ·      │      │ boutique         │
    │ Storage (photos) · journal   │      └──────────────────┘
    └──────────────▲───────────────┘
-                  │ toutes les 30 min (jeton)
+                  │ toutes les heures (jeton)
    GitHub Actions « Surveillance » (robot) ──► build hook Netlify si le catalogue a changé
 ```
 
@@ -112,7 +112,7 @@ WhatsApp** (à traiter, traitée, sans suite) : ce ne sont jamais des commandes.
   `signaler_erreur` (limité).
 - **Pages vues** : `compterVisite` à chaque changement d'adresse (hors `/admin`), LCP joint à la première ; visiteur =
   empreinte hachée de l'adresse réseau (sel secret en base), jamais l'adresse.
-- **Santé** : le robot `web/scripts/robot-sante.mjs` (workflow `sante.yml`, toutes les 30 min) contrôle site, 404,
+- **Santé** : le robot `web/scripts/robot-sante.mjs` (workflow `sante.yml`, toutes les heures) contrôle site, 404,
   `version.json`, API, Auth, photos et WhatsApp, et écrit par `enregistrer_controles` (jeton haché). L'admin peut aussi
   contrôler depuis son navigateur (`noter_controles`).
 - **Version** : `vite.config.ts` grave la version (commit) dans le JavaScript et dans `/version.json`.
@@ -212,7 +212,7 @@ Les deux renvoient un **vrai 404** sur une adresse inconnue et mettent en cache 
 | `supabase.yml` | push sur `main`, à la demande | Supabase local dans la CI : migrations sur base vide, vrais comptes, RLS, Playwright admin |
 | `image.yml` | push sur `main`, tag `v*` | image publiée sur `ghcr.io/<compte>/hmode-web` |
 | `base.yml` | à la main seulement | migrations sur la base en ligne (essai à blanc par défaut, environnement « production ») |
-| `sante.yml` | toutes les 30 min, dès que `SITE_URL` existe | robot de surveillance ; échec = e-mail de GitHub |
+| `sante.yml` | toutes les heures (:07), dès que `SITE_URL` existe | robot de surveillance ; échec = e-mail de GitHub |
 
 Le compte admin n'est jamais créé par la CI.
 

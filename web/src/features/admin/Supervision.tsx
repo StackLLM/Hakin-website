@@ -22,7 +22,7 @@ import {
 } from './supervisionCommun'
 
 /** Supervision technique (rôle « technique » seulement, vérifié par la base), en pages indépendantes.
- *  Chaque chiffre vient d'une mesure réelle : contrôles du robot (GitHub Actions, toutes les 30 min) et de ce navigateur,
+ *  Chaque chiffre vient d'une mesure réelle : contrôles du robot (GitHub Actions, toutes les heures) et de ce navigateur,
  *  erreurs envoyées par les visiteurs, pages vues, appels et blocages des limites, sauvegardes, déploiements vus.
  *  Sans contrôle récent, un service est « inconnu », jamais vert. Ce qui n'est pas mesurable d'ici est dit tel quel.
  *  La page Journaux et incidents est dans SupervisionJournal.tsx. */
@@ -43,7 +43,7 @@ const JUSTIFICATIONS: Record<string, string> = {
   erreur_client: 'Une page qui plante en boucle ne doit pas remplir la base ni masquer les autres erreurs.',
   demande_whatsapp: 'Un visiteur ouvre quelques conversations, pas des dizaines en dix minutes.',
   visite: 'Une navigation normale fait quelques pages par minute ; au-delà, c\'est un robot.',
-  controle_robot: 'Le robot écrit une fois toutes les 30 min ; la marge couvre les relances à la main et les scripts de sauvegarde.',
+  controle_robot: 'Le robot écrit une fois par heure ; la marge couvre les relances à la main et les scripts de sauvegarde.',
 }
 
 const robotEnRetard = (etat: EtatSupervision) => !etat.dernier_robot || (Date.now() - new Date(etat.dernier_robot).getTime()) / 60000 > ROBOT_EN_RETARD_MIN
@@ -55,7 +55,7 @@ function EtatGlobal({ etat }: { etat: EtatSupervision }) {
   const global = pireStatut(etat.services)
   const retard = robotEnRetard(etat)
   return (
-    <CarteAdmin titre="État du site" texte="Le pire état de chaque partie. Opérationnel : le dernier contrôle a réussi, dans les temps. Dégradé : lent, ou un échec dans les 6 dernières heures. Indisponible : le dernier contrôle a échoué. Inconnu : aucun contrôle depuis 75 minutes."
+    <CarteAdmin titre="État du site" texte="Le pire état de chaque partie. Opérationnel : le dernier contrôle a réussi, dans les temps. Dégradé : lent, ou un échec dans les 6 dernières heures. Indisponible : le dernier contrôle a échoué. Inconnu : aucun contrôle depuis 135 minutes."
       actions={<Statut statut={global} taille="md" />}>
       <p className="mb-4 flex items-center gap-2 text-[13px] text-gris">
         <Radar className="h-4 w-4 shrink-0" aria-hidden />
@@ -251,7 +251,7 @@ function Sante({ etat, direct }: { etat: EtatSupervision; direct: Controle[] | n
         </CarteAdmin>
       )}
 
-      <CarteAdmin titre="Services surveillés" texte="Un contrôle = une vraie requête, chronométrée, faite par le robot (GitHub Actions, toutes les 30 min) ou depuis ce navigateur. Disponibilité = part des contrôles réussis ; p95 = 95 % des réponses sont plus rapides que cette valeur.">
+      <CarteAdmin titre="Services surveillés" texte="Un contrôle = une vraie requête, chronométrée, faite par le robot (GitHub Actions, toutes les heures) ou depuis ce navigateur. Disponibilité = part des contrôles réussis ; p95 = 95 % des réponses sont plus rapides que cette valeur.">
         {etat.services.length === 0
           ? <EtatVide Icone={Radar} titre="Aucun contrôle enregistré" texte="Lancez « Contrôler maintenant », puis activez le robot (guide, chapitre « Surveillance »)." />
           : <TableServices services={etat.services} />}
@@ -281,7 +281,7 @@ function Sante({ etat, direct }: { etat: EtatSupervision; direct: Controle[] | n
         <ul className="grid gap-3 md:grid-cols-3">
           {([
             [Radar, 'Service externe', 'UptimeRobot ou Better Stack, à créer (guide, chapitre « Surveillance ») : interroge le site et /rest/v1/rpc/sante toutes les 1 à 5 min, e-mail dès qu\'ils ne répondent plus.'],
-            [Clock, 'Robot GitHub, toutes les 30 min', 'Un échec, une lenteur trois fois de suite, des blocages ou erreurs en rafale, une clé admin bloquée : le workflow échoue et GitHub envoie un e-mail. Chaque jour à 9 h : rappel des sauvegardes.'],
+            [Clock, 'Robot GitHub, toutes les heures', 'Un échec, une lenteur trois fois de suite, des blocages ou erreurs en rafale, une clé admin bloquée : le workflow échoue et GitHub envoie un e-mail. Chaque jour à 9 h : rappel des sauvegardes.'],
             [HardDrive, 'Supabase et Netlify', 'Ils envoient eux-mêmes un e-mail avant une mise en pause ou au dépassement d\'un quota.'],
           ] as [LucideIcon, string, string][]).map(([Icone, t, x]) => (
             <li key={t} className="rounded-bloc border border-ligne bg-fond p-4">
@@ -491,7 +491,7 @@ function Maintenance({ etat, onNote }: { etat: EtatSupervision; onNote: () => vo
   const taches = useMemo(() => [
     { t: 'Sauvegarde de la base', regle: 'chaque semaine, et avant chaque mise à jour de la base', ok: jS !== null && jS <= 7, etat: jS === null ? 'jamais faite' : `il y a ${jS} jour${jS > 1 ? 's' : ''}` },
     { t: 'Restauration testée', regle: 'une fois par mois', ok: jR !== null && jR <= 35, etat: jR === null ? 'jamais testée' : `il y a ${jR} jour${jR > 1 ? 's' : ''}` },
-    { t: 'Robot de surveillance', regle: 'un passage toutes les 30 min', ok: !robotEnRetard(etat), etat: etat.dernier_robot ? depuis(etat.dernier_robot) : 'jamais passé' },
+    { t: 'Robot de surveillance', regle: 'un passage par heure', ok: !robotEnRetard(etat), etat: etat.dernier_robot ? depuis(etat.dernier_robot) : 'jamais passé' },
     { t: 'Version publiée', regle: 'la même que celle de ce navigateur', ok: !!v && !differente, etat: enLigne.enCours ? 'lecture…' : v ? (differente ? 'différente : rechargez la page' : 'à jour') : 'version.json introuvable' },
   ], [jS, jR, etat, v, differente, enLigne.enCours])
   const faites = taches.filter(t => t.ok).length

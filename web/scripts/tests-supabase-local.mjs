@@ -409,7 +409,7 @@ verdict(sauvFaux.data?.ok === false && sauvScript.data?.ok === true
   'sauvegardes : notées par le script avec le jeton du robot, refusées sans', JSON.stringify(sauvFaux.data))
 psql(`insert into public.controles_sante (source, cible, ok, statut_http, duree_ms, cree_le) values
   ('robot', 'etat ok ${suffixe}', true, 200, 100, now()), ('robot', 'base : etat lent ${suffixe}', true, 200, 2500, now()),
-  ('robot', 'etat panne ${suffixe}', false, 503, 50, now()), ('robot', 'etat vieux ${suffixe}', true, 200, 100, now() - interval '2 hours'),
+  ('robot', 'etat panne ${suffixe}', false, 503, 50, now()), ('robot', 'etat vieux ${suffixe}', true, 200, 100, now() - interval '3 hours'),
   ('robot', 'etat rechute ${suffixe}', false, 0, 50, now() - interval '1 hour'), ('robot', 'etat rechute ${suffixe}', true, 200, 100, now())`)
 const etatT = await B.sb.rpc('etat_supervision')
 const st = c => etatT.data?.services?.find(s => s.cible === `${c} ${suffixe}`)?.statut
