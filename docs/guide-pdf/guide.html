@@ -385,13 +385,13 @@ dig www.hmode.ma +short</pre>Les valeurs saisies reviennent. La <em class="def">
       <tr><td><code>VITE_SUPABASE_URL</code></td><td>oui</td><td><code>web/.env</code>, Netlify, GitHub (variable)</td><td>adresse du projet Supabase</td></tr>
       <tr><td><code>VITE_SUPABASE_PUBLISHABLE_KEY</code></td><td>oui</td><td>idem</td><td>clé publique ; les droits restent vérifiés par la RLS</td></tr>
       <tr><td><code>SITE_URL</code></td><td>oui</td><td>Netlify, GitHub (variable)</td><td>adresse finale : sitemap, aperçus de partage, robot</td></tr>
-      <tr><td><code>ADMIN_EMAIL</code>, <code>ADMIN_MOT_DE_PASSE</code>, <code>ADMIN_CLE</code></td><td><strong>secret</strong></td><td><code>web/.env</code> seulement</td><td>compte admin (<code>npm run admin:sql</code>)</td></tr>
-      <tr><td><code>SANTE_JETON</code></td><td><strong>secret</strong></td><td><code>web/.env</code> + GitHub (secret)</td><td>jeton du robot et des scripts de sauvegarde</td></tr>
+      <tr><td><code>ADMIN_EMAIL</code>, <code>ADMIN_MOT_DE_PASSE</code>, <code>ADMIN_CLE</code></td><td><strong>secret</strong></td><td><code>.env.admin</code> (racine, hors de <code>web/</code>) seulement</td><td>compte admin (<code>npm run admin:sql</code>)</td></tr>
+      <tr><td><code>SANTE_JETON</code></td><td><strong>secret</strong></td><td><code>.env.admin</code> (racine) + GitHub (secret)</td><td>jeton du robot et des scripts de sauvegarde</td></tr>
       <tr><td><code>SUPABASE_ACCESS_TOKEN</code></td><td><strong>secret</strong></td><td>GitHub (secret), facultatif</td><td>appliquer les migrations depuis GitHub</td></tr>
       <tr><td><code>NETLIFY_BUILD_HOOK</code></td><td><strong>secret</strong></td><td>GitHub (secret), facultatif</td><td>republier les aperçus quand le catalogue change</td></tr>
     </tbody>
   </table>
-  <div class="encadre attention"><div class="titre">Jamais</div><p>Ni la clé <code>service_role</code>, ni un mot de passe, ni un jeton dans une variable <code>VITE_</code> ou dans Netlify. Le dépôt est <strong>public</strong> : <code>web/.env</code> n'est jamais envoyé dans git.</p></div>
+  <div class="encadre attention"><div class="titre">Jamais</div><p>Ni la clé <code>service_role</code>, ni un mot de passe, ni un jeton dans une variable <code>VITE_</code> ou dans Netlify. Le dépôt est <strong>public</strong> : ni <code>web/.env</code> ni <code>.env.admin</code> ne sont envoyés dans git, et aucun secret n'est rangé dans <code>web/</code> (dossier servi par Vite).</p></div>
 
   <h3>Le backend : réglages Supabase</h3>
   <div class="fiche"><h3>URL Configuration <span class="etiquette ok">fait le 09/11</span></h3><dl>
@@ -460,7 +460,7 @@ dig www.hmode.ma +short</pre>Les valeurs saisies reviennent. La <em class="def">
 
   <h3>Activer le robot (une fois)</h3>
   <ol class="etapes">
-    <li><strong>Créer un jeton</strong> et l'écrire dans <code>web/.env</code> :<pre>openssl rand -hex 24</pre>Ligne à ajouter : <code>SANTE_JETON=&lt;le jeton&gt;</code>.</li>
+    <li><strong>Créer un jeton</strong> et l'écrire dans <code>.env.admin</code>, à la racine du projet :<pre>openssl rand -hex 24</pre>Ligne à ajouter : <code>SANTE_JETON=&lt;le jeton&gt;</code>.</li>
     <li><strong>Poser son empreinte en base</strong> : dans <code>web/</code>, <code>npm run sante:sql</code>, puis coller le SQL affiché dans Supabase → <strong>SQL Editor</strong>. Seule l'empreinte part en base, jamais le jeton.</li>
     <li><strong>GitHub → Settings → Secrets and variables → Actions</strong> : secret <code>SANTE_JETON</code> (même valeur) ; variables <code>SITE_URL</code>, <code>VITE_SUPABASE_URL</code>, <code>VITE_SUPABASE_PUBLISHABLE_KEY</code>.</li>
     <li><strong>GitHub → Actions → Surveillance → Run workflow.</strong> Résultat vert, puis visible dans l'admin.</li>
@@ -632,7 +632,7 @@ Retry-After: 600</pre>
   <ul>
     <li>Écrit <code>~/Documents/HMODE-sauvegardes/&lt;date&gt;/</code> : <code>roles.sql</code>, <code>schema.sql</code>, <code>donnees.sql</code>, <code>photos/</code> (si des photos ont été téléversées), <code>manifeste.json</code> (empreintes et nombre de lignes de chaque table).</li>
     <li>Dossier réservé à votre compte (droits 700), <strong>hors du dépôt public</strong> : il contient les coordonnées des clients.</li>
-    <li>Note la sauvegarde dans l'admin si <code>SANTE_JETON</code> est dans <code>web/.env</code> (sinon : Supervision → Maintenance → Noter).</li>
+    <li>Note la sauvegarde dans l'admin si <code>SANTE_JETON</code> est dans <code>.env.admin</code> (sinon : Supervision → Maintenance → Noter).</li>
   </ul>
   <h3>Tester la restauration (chaque mois)</h3>
   <pre data-titre="dans web/ — Docker doit tourner">npm run sauvegarde:tester</pre>

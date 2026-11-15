@@ -24,7 +24,7 @@
 - [ ] Créer un compte client avec votre adresse ; confirmer ; tester « mot de passe oublié » (ch. 17)
 
 ### Surveillance
-- [x] `SANTE_JETON` : `web/.env` → empreinte en base → secret GitHub `SANTE_JETON` (14/11) (ch. 10)
+- [x] `SANTE_JETON` : `.env.admin` (racine) → empreinte en base → secret GitHub `SANTE_JETON` (14/11) (ch. 10)
 - [x] GitHub → Actions → variables `SITE_URL`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` (14/11) (ch. 10)
 - [x] GitHub → Actions → **Surveillance → Run workflow** : vert, 9 contrôles sur 9 enregistrés en base (14/11) (ch. 10)
 - [ ] github.com → Settings → Notifications → Actions → *Only notify for failed workflows* (ch. 13)

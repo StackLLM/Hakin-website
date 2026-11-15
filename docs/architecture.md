@@ -62,7 +62,7 @@ Hakin-website/
 └── start.sh · stop.sh · deploy.sh
 ```
 
-Hors git, sur le disque seulement : `Scrapping/` (outil interne de collecte d'images), `web/.env`, `web/rapports/`.
+Hors git, sur le disque seulement : `Scrapping/` (outil interne de collecte d'images), `web/.env` (valeurs publiques seulement), `.env.admin` (secrets admin et robot, hors de `web/`), `web/rapports/`.
 
 ## 3. Les parcours
 
@@ -86,7 +86,7 @@ chacun ne voit que les siens (RLS). Déconnexion = appareil vidé.
 ### Admin
 1. `/admin` a sa propre connexion à trois champs : e-mail, mot de passe, clé de sécurité (format libre).
 2. Le compte n'est jamais créé par le site : `npm run admin:sql` lit `ADMIN_EMAIL`, `ADMIN_MOT_DE_PASSE`, `ADMIN_CLE`
-   dans `web/.env` et produit le SQL à coller dans Supabase (empreintes bcrypt seulement).
+   dans `.env.admin` (racine du projet, hors du dossier servi par Vite) et produit le SQL à coller dans Supabase (empreintes bcrypt seulement).
 3. `deverrouiller_admin(cle)` compare la clé à son empreinte et déverrouille **cette session** pendant 12 h.
    5 erreurs = 15 min de blocage. Tout est écrit dans le journal.
 4. `est_admin()` exige compte admin **et** session déverrouillée. Toutes les politiques d'écriture s'en servent.

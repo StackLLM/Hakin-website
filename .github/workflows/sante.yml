@@ -4,7 +4,7 @@
 # du dépôt (réglage : github.com → Settings → Notifications → Actions, « Only notify for failed workflows »).
 # Inactif tant que la variable SITE_URL n'est pas définie (avant la mise en ligne).
 # À régler une fois : variables SITE_URL, VITE_SUPABASE_URL, VITE_SUPABASE_PUBLISHABLE_KEY ; secret SANTE_JETON
-# (même valeur que SANTE_JETON de web/.env, posée en base par `npm run sante:sql`) ; facultatif : secret NETLIFY_BUILD_HOOK
+# (même valeur que SANTE_JETON de .env.admin à la racine, posée en base par `npm run sante:sql`) ; facultatif : secret NETLIFY_BUILD_HOOK
 # (Netlify → Site configuration → Build & deploy → Build hooks) pour republier les aperçus des fiches modifiées.
 # Le robot remonte aussi : lenteur trois fois de suite, clé admin bloquée, et chaque jour vers 9 h (heure du Maroc) une
 # sauvegarde de plus de 8 jours ou une restauration non testée depuis 35 jours. Pour une alerte en quelques minutes,

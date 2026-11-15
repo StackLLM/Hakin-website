@@ -38,7 +38,10 @@ export default defineConfig(({ mode }) => ({
       { find: '@', replacement: chemin('./src') },
     ],
   },
-  server: { host: true, port: 6013, strictPort: true },
+  // localhost seulement : le serveur de développement n'est pas joignable depuis le réseau (audit de sécurité du 15/11).
+  // Test ponctuel sur téléphone : `npx vite --host`, puis l'arrêter.
+  // `fs.deny` remplace la liste par défaut de Vite : on la reprend, et on ajoute les rapports locaux (comptes de test, résultats).
+  server: { host: 'localhost', port: 6013, strictPort: true, fs: { deny: ['.env', '.env.*', '*.{crt,pem}', '**/.git/**', '**/rapports/**'] } },
   preview: { port: 6013 },
   // Tests : jamais le vrai projet Supabase (le client est simulé dans les tests qui en ont besoin).
   test: { environment: 'jsdom', globals: true, setupFiles: './src/test/setup.ts', css: false, exclude: [...configDefaults.exclude, 'e2e/**'], env: { VITE_SUPABASE_URL: '', VITE_SUPABASE_PUBLISHABLE_KEY: '' } },

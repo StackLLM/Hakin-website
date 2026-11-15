@@ -10,6 +10,7 @@ web/playwright-report/
 .env
 .env.*
 !.env.example
+!.env.admin.example
 CLAUDE.local.md
 
 # Outil interne de collecte d'images (151 Mo) : reste sur le disque, hors du dépôt

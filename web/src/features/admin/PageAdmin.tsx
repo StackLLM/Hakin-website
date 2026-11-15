@@ -66,7 +66,7 @@ async function quitterAdmin(deconnexion: () => Promise<void>) {
 }
 
 /** Garde de l'administration : un seul formulaire, trois champs — e-mail, mot de passe, clé de sécurité.
- *  Le compte admin est créé par `npm run admin:sql` (lu dans web/.env), jamais par l'inscription du site.
+ *  Le compte admin est créé par `npm run admin:sql` (lu dans .env.admin à la racine), jamais par l'inscription du site.
  *  Mot de passe vérifié par Supabase, clé vérifiée par la base (`deverrouiller_admin`, session ouverte 12 h). */
 /** Thème d'application technique (tokens.css § .theme-admin) posé sur <html> le temps de l'admin, fenêtres en portail comprises. */
 function useThemeAdmin() {
@@ -119,7 +119,7 @@ export function PageAdmin() {
     </Ecran>
   )
   if (!statut.cle) return (
-    <Ecran titre="Clé non définie" texte={<>Aucune clé de sécurité n'est enregistrée dans la base. Renseignez <code>ADMIN_EMAIL</code>, <code>ADMIN_MOT_DE_PASSE</code> et <code>ADMIN_CLE</code> dans <code>web/.env</code>, lancez <code>npm run admin:sql</code> dans <code>web/</code> et collez le résultat dans le SQL Editor de Supabase.</>}>
+    <Ecran titre="Clé non définie" texte={<>Aucune clé de sécurité n'est enregistrée dans la base. Renseignez <code>ADMIN_EMAIL</code>, <code>ADMIN_MOT_DE_PASSE</code> et <code>ADMIN_CLE</code> dans <code>.env.admin</code> (à la racine du projet, hors de <code>web/</code>), lancez <code>npm run admin:sql</code> dans <code>web/</code> et collez le résultat dans le SQL Editor de Supabase.</>}>
       <Bouton variante="contour" onClick={() => void quitterAdmin(deconnexion)}>Se déconnecter</Bouton>
     </Ecran>
   )
