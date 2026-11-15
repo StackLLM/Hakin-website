@@ -1,5 +1,6 @@
 import { execFileSync } from 'node:child_process'
-import { writeFileSync } from 'node:fs'
+import { mkdirSync, writeFileSync } from 'node:fs'
+import { dirname } from 'node:path'
 
 /** Compte admin jetable, créé comme en vrai : `scripts/admin-sql.mjs` (e-mail, mot de passe, clé) → SQL passé à la base
  *  locale. Pas d'inscription par le site. La clé d'avant est rendue par le rangement. */
@@ -19,5 +20,6 @@ export default async function preparation() {
   const sortie = execFileSync('docker', ['exec', '-i', 'supabase_db_hmode', 'psql', '-U', 'postgres', '-d', 'postgres', '-v', 'ON_ERROR_STOP=1', '-tA'],
     { input: sql, encoding: 'utf8' })
   if (!sortie.includes(email)) throw new Error('compte admin non créé par admin-sql.mjs')
+  mkdirSync(dirname(FICHIER_COMPTE), { recursive: true }) // `rapports/` n'est pas versionné : absent en CI
   writeFileSync(FICHIER_COMPTE, JSON.stringify({ email, motDePasse, suffixe, ancienneCle }))
 }

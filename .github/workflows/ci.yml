@@ -42,8 +42,8 @@ jobs:
       - name: Fichiers du build (sitemap, routes, version, aperçus de partage)
         run: |
           test -f dist/sitemap.xml && test -f dist/_redirects && test -f dist/version.json
-          fiche=$(ls dist/produit | head -1)
-          grep -q 'property="og:image" content="https://exemple.invalid/partage/' "dist/produit/$fiche/index.html"
+          fiche=$(ls dist/produit/*.html | head -1) # une page par fiche : dist/produit/<slug>.html
+          grep -q 'property="og:image" content="https://exemple.invalid/partage/' "$fiche"
           test "$(find dist/partage -name '*.jpg' -size +300k | wc -l)" -eq 0 # WhatsApp : image de moins de 300 Ko
 
   navigateur:
