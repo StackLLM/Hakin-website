@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowRight, ExternalLink, ImagePlus, Plus, Trash2, X } from 
 import { Bouton, Champ, Selection, ZoneTexte, useNotifier } from '@/design-system'
 import { CHAMPS_A_CONFIRMER, TAILLES_CHAUSSURES, TAILLES_VETEMENTS, nettoyerAConfirmer, produitVide, slugEnSaisie, slugifier, validerProduit, type ErreursProduit } from '@/lib/admin'
 import { categories, collections, srcImage } from '@/lib/catalogue'
-import { chargerDonnees } from '@/lib/donnees'
+import { chargerDonnees, VISIBILITE_CLIENTS } from '@/lib/donnees'
 import type { ProduitAdmin } from '@/lib/produitsBase'
 import type { ImageProduit } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -107,7 +107,7 @@ export function EditionProduit() {
       setARetirer([])
       setInitial(pret); setP(pret)
       void chargerDonnees()
-      notifier({ ton: 'succes', message: creation ? 'Pièce créée.' : 'Modifications enregistrées.' })
+      notifier({ ton: 'succes', message: `${creation ? 'Pièce créée.' : 'Modifications enregistrées.'} ${VISIBILITE_CLIENTS}` })
       if (creation) naviguer(`/admin/produits/${pret.slug}`, { replace: true })
     } catch (err) { notifier({ ton: 'erreur', message: (err as Error).message }) }
     finally { setEnvoi(false) }
@@ -118,7 +118,7 @@ export function EditionProduit() {
       await supprimerProduit(p.slug)
       await Promise.all([...p.images.map(i => i.src), ...aRetirer].map(src => supprimerPhoto(src).catch(() => undefined)))
       void chargerDonnees()
-      notifier({ ton: 'succes', message: 'Pièce supprimée.' })
+      notifier({ ton: 'succes', message: `Pièce supprimée. ${VISIBILITE_CLIENTS}` })
       naviguer('/admin/produits', { replace: true })
     } catch (e) { notifier({ ton: 'erreur', message: (e as Error).message }); setConfirmerSuppression(false) }
   }

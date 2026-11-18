@@ -15,7 +15,7 @@ import { PageBoutique } from './features/catalogue/PageBoutique'
 import { PageProduit } from './features/produit/PageProduit'
 import { useSession } from './state/session'
 import { brancherSynchroCompte } from './state/synchroCompte'
-import { chargerDonnees, useDonnees } from './lib/donnees'
+import { chargerDonnees, suivreDonnees, useDonnees } from './lib/donnees'
 import { titrePage } from './lib/titres'
 
 /** Chargement par page. Accueil, boutique et fiche produit restent dans le paquet principal : ce sont les pages
@@ -91,7 +91,8 @@ export default function App() {
   useEffect(() => { void demarrerSession() }, [demarrerSession])
   useEffect(() => brancherSynchroCompte(), [])
   // Catalogue et réglages de la base (lot 20) ; en attendant, ceux livrés avec le site.
-  useEffect(() => { void chargerDonnees() }, [])
+  // Puis relecture au retour sur l'onglet et toutes les 5 min : un changement de l'admin arrive sans recharger (lot 47).
+  useEffect(() => { void chargerDonnees(); return suivreDonnees() }, [])
   // Fréquentation (supervision) : une page vue par changement d'adresse, hors administration.
   useEffect(() => { compterVisite(location.pathname) }, [location.pathname])
   const versionDonnees = useDonnees(s => s.version)
