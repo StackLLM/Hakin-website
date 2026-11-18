@@ -37,3 +37,4 @@ Nouvelle décision : copier [`decisions/0000-modele.md`](decisions/0000-modele.m
 
 - [`design/`](design/) : rapport de clonage Original Fit, maquettes d'origine, ancien prompt du logo (remplacé).
 - [`projet/planning/`](projet/planning/) : roadmap et plans de cadrage d'octobre 2026 (historique, non tenus à jour).
+- [`plans/`](plans/) : plans par phases et par lots des chantiers à venir (`2026-11-18-publication-admin-vers-site.md` : de l'admin vers le site client).

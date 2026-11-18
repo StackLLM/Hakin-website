@@ -10,6 +10,7 @@ import {
 import { formatDH } from '@/lib/format'
 import { CarteProduit } from '@/components/CarteProduit'
 import { boutique, estCommandable, estPackshot, produitsLies, srcImage, trouverCategorie, trouverProduit } from '@/lib/catalogue'
+import { lireSelection, noterSelection, selectionValide } from '@/lib/selectionFiche'
 import { lienWhatsApp, messageProduit } from '@/lib/whatsapp'
 import { noterDemande, type MotifDemande } from '@/lib/demandes'
 import { lienCommandeDirecte } from '@/lib/commandeDirecte'
@@ -116,9 +117,10 @@ function GuideTailles({ ouvert, onFermer }: { ouvert: boolean; onFermer: () => v
 export function PageProduit() {
   const { slug = '' } = useParams()
   const produit = trouverProduit(slug)
-  const [coloris, setColoris] = useState<string | null>(null)
-  const [taille, setTaille] = useState<string | null>(null)
-  const [quantite, setQuantite] = useState(1)
+  const [depart] = useState(() => (produit ? selectionValide(produit, lireSelection(produit.slug)) : null))
+  const [coloris, setColoris] = useState<string | null>(depart?.coloris ?? null)
+  const [taille, setTaille] = useState<string | null>(depart?.taille ?? null)
+  const [quantite, setQuantite] = useState(depart?.quantite ?? 1)
   const [erreurTaille, setErreurTaille] = useState(false)
   const [guide, setGuide] = useState(false)
   const [barreVisible, setBarreVisible] = useState(false)
@@ -132,9 +134,13 @@ export function PageProduit() {
   const basculerFavori = useFavoris(s => s.basculer)
   const animations = useAnimationsActives()
 
+  // Nouvelles données de la pièce (relecture de la base) : on garde le choix du visiteur s'il est encore valable.
   useEffect(() => {
-    setColoris(produit?.coloris[0]?.nom ?? null); setTaille(null); setQuantite(1); setErreurTaille(false)
+    if (!produit) return
+    const s = selectionValide(produit, lireSelection(produit.slug))
+    setColoris(s.coloris); setTaille(s.taille); setQuantite(s.quantite); setErreurTaille(false)
   }, [produit])
+  useEffect(() => { if (produit) noterSelection(produit.slug, { coloris, taille, quantite }) }, [produit, coloris, taille, quantite])
   useEffect(() => {
     const el = zoneAchat.current
     if (!el || !('IntersectionObserver' in window)) return

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Bouton, CaseACocher, Champ, ZoneTexte, useNotifier } from '@/design-system'
 import { boutiqueFichier } from '@/lib/catalogue'
-import { chargerDonnees } from '@/lib/donnees'
+import { chargerDonnees, VISIBILITE_CLIENTS } from '@/lib/donnees'
 import { VILLES } from '@/lib/livraison'
 import { fusionnerBoutique } from '@/lib/produitsBase'
 import { validerReglages, type ErreursReglages } from '@/lib/admin'
@@ -35,7 +35,7 @@ export function Reglages() {
       await enregistrerReglage('boutique', valeur)
       chargement.remplacer(structuredClone(b))
       void chargerDonnees()
-      notifier({ ton: 'succes', message: 'Réglages enregistrés : le site est à jour.' })
+      notifier({ ton: 'succes', message: `Réglages enregistrés. ${VISIBILITE_CLIENTS}` })
     } catch (err) { notifier({ ton: 'erreur', message: (err as Error).message }) }
     finally { setEnvoi(false) }
   }
