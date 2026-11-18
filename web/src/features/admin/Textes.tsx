@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Bouton, ZoneTexte, useNotifier } from '@/design-system'
-import { chargerDonnees } from '@/lib/donnees'
+import { chargerDonnees, VISIBILITE_CLIENTS } from '@/lib/donnees'
 import { SECTIONS_TEXTES, fusionnerTextes, type Textes as TextesPages } from '@/lib/produitsBase'
 import { enregistrerReglage, lireReglages } from './api'
 import { CarteAdmin, Chargement, EnTeteAdmin, ErreurAdmin, useAvertirSiModifie, useChargement } from './commun'
@@ -34,7 +34,7 @@ export function Textes() {
       await enregistrerReglage('textes', propre)
       chargement.remplacer(propre); setT(structuredClone(propre))
       void chargerDonnees()
-      notifier({ ton: 'succes', message: 'Textes enregistrés : les pages du site sont à jour.' })
+      notifier({ ton: 'succes', message: `Textes enregistrés. ${VISIBILITE_CLIENTS}` })
     } catch (e) { notifier({ ton: 'erreur', message: (e as Error).message }) }
     finally { setEnvoi(false) }
   }

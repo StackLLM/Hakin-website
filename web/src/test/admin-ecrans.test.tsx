@@ -301,7 +301,7 @@ describe('administration : catalogue', () => {
     await u.click(screen.getByRole('button', { name: 'XS à XXL' }))
     await u.click(screen.getByRole('switch', { name: 'Taille XXL disponible' }))
     await u.click(screen.getByRole('button', { name: 'Enregistrer' }))
-    expect(await screen.findByText('Modifications enregistrées.')).toBeInTheDocument()
+    expect(await screen.findByText(/^Modifications enregistrées\. Visible sur le site tout de suite/)).toBeInTheDocument()
     const ligne = base.produits.find(p => p.slug === 'a')!
     expect(ligne).toMatchObject({ prix_dh: 520, prix_barre_dh: 650, a_confirmer: [] })
     expect((ligne.tailles as { taille: string; disponible: boolean }[]).map(t => `${t.taille}:${t.disponible}`)).toEqual(['XS:true', 'S:true', 'M:true', 'L:true', 'XL:true', 'XXL:false'])
@@ -319,7 +319,7 @@ describe('administration : catalogue', () => {
     expect(await screen.findByText('Cette adresse est déjà prise par une autre pièce.')).toBeInTheDocument()
     await u.clear(screen.getByLabelText('Adresse de la page')); await u.type(screen.getByLabelText('Adresse de la page'), 'polo-riviera-2')
     await u.click(screen.getByRole('button', { name: 'Créer la pièce' }))
-    expect(await screen.findByText('Pièce créée.')).toBeInTheDocument()
+    expect(await screen.findByText(/^Pièce créée\. Visible sur le site tout de suite/)).toBeInTheDocument()
     expect(base.produits.find(p => p.slug === 'polo-riviera-2')).toMatchObject({ nom: 'Polo Riviera', publie: false, prix_dh: null })
   })
 
@@ -340,7 +340,7 @@ describe('administration : catalogue', () => {
     await u.click(await screen.findByRole('button', { name: 'Supprimer la pièce' }))
     const fenetre = await screen.findByRole('dialog', { name: 'Supprimer cette pièce ?' })
     await u.click(within(fenetre).getByRole('button', { name: 'Supprimer définitivement' }))
-    expect(await screen.findByText('Pièce supprimée.')).toBeInTheDocument()
+    expect(await screen.findByText(/^Pièce supprimée\. Visible sur le site tout de suite/)).toBeInTheDocument()
     expect(base.produits.map(p => p.slug)).toEqual(['a'])
   })
 
@@ -404,7 +404,7 @@ describe('administration : commandes, réglages, textes, journal', () => {
     await u.click(casa)
     await u.click(screen.getByRole('checkbox', { name: 'Rabat' }))
     await u.click(screen.getByRole('button', { name: 'Enregistrer les réglages' }))
-    expect(await screen.findByText('Réglages enregistrés : le site est à jour.')).toBeInTheDocument()
+    expect(await screen.findByText(/^Réglages enregistrés\. Visible sur le site tout de suite/)).toBeInTheDocument()
     const r = base.reglages.find(x => x.cle === 'boutique')!.valeur as Record<string, unknown>
     expect(r).toMatchObject({ whatsapp: '212612345678', livraison: { fraisDH: 30, villes: ['Casablanca', 'Rabat'] }, retours: 'Retour possible sous 24 h après la livraison.' })
     expect(r).not.toHaveProperty('paiement')
@@ -416,7 +416,7 @@ describe('administration : commandes, réglages, textes, journal', () => {
     monter('/admin/textes')
     await u.type(await screen.findByLabelText(/^Hébergeur/), '  Netlify  ')
     await u.click(screen.getByRole('button', { name: 'Enregistrer les textes' }))
-    expect(await screen.findByText('Textes enregistrés : les pages du site sont à jour.')).toBeInTheDocument()
+    expect(await screen.findByText(/^Textes enregistrés\. Visible sur le site tout de suite/)).toBeInTheDocument()
     expect(base.reglages.find(x => x.cle === 'textes')!.valeur).toEqual({ 'mentions-legales': { Hébergeur: 'Netlify' }, cgv: {}, confidentialiteResponsable: '', guideDesTailles: '' })
   })
 
