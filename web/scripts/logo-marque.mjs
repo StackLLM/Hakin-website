@@ -2,7 +2,8 @@
 // Rend ce monogramme en PNG, dans la police de la marque et les couleurs de tokens.css, pour :
 //   - les photos de profil Instagram et Facebook (carré 1080, fond crème, logo dans le cercle de recadrage) ;
 //   - le logo seul sur fond transparent (2000 px) ;
-//   - l'icône du site (favicon 48 px, icône d'écran d'accueil iOS 180 px).
+//   - l'icône du site (favicon 48 px, icône d'écran d'accueil iOS 180 px) ;
+//   - le monogramme de l'image de partage fabriquée dans l'admin (168 px, transparent).
 // Usage : cd web && npm run logo   (Chromium de Playwright, rien n'est envoyé sur le réseau)
 import { mkdirSync, readFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
@@ -53,6 +54,9 @@ try {
   await rendre(page, { taille: 2000, remplissage: 0.9, fond: null, sortie: 'medias/marque/logo-monogramme-2000.png' })
   await rendre(page, { taille: 48, remplissage: 1.15, fond: token('fond'), sortie: 'public/favicon.png' })
   await rendre(page, { taille: 180, remplissage: 0.9, fond: token('fond'), sortie: 'public/apple-touch-icon.png' })
+  // Monogramme de l'image de partage fabriquée dans l'admin (features/admin/photos.ts), posé à 84 px : rendu en 168 px.
+  mkdirSync('public/images/marque', { recursive: true })
+  await rendre(page, { taille: 168, remplissage: 0.9, fond: null, sortie: 'public/images/marque/monogramme-168.png' })
 } finally {
   await navigateur.close()
 }

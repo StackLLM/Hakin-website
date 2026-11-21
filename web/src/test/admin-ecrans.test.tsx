@@ -16,7 +16,7 @@ vi.mock('@/data/produits.json', () => ({ default: [
  *  sont vérifiés sur le Supabase local (`npm run test:supabase`) ; ici on vérifie l'interface et ce qu'elle envoie. */
 type Ligne = Record<string, unknown>
 const base: Record<string, Ligne[]> = {}
-const appels: { rpc: [string, unknown][]; ecritures: [string, string, unknown][] } = { rpc: [], ecritures: [] }
+const appels: { rpc: [string, unknown][]; ecritures: [string, string, unknown][]; stockage: string[] } = { rpc: [], ecritures: [], stockage: [] }
 let admin = true
 let deverrouille = true
 let cleDefinie = true
@@ -103,7 +103,10 @@ const faux = {
     if (nom === 'supprimer_commande') base.commandes = base.commandes.filter(x => x !== c)
     return { data: null, error: null }
   },
-  storage: { from: () => ({ upload: async () => ({ data: {}, error: null }), remove: async () => ({ data: [], error: null }), getPublicUrl: (p: string) => ({ data: { publicUrl: `https://stockage.test/${p}` } }) }) },
+  storage: { from: () => ({
+    upload: async (chemin: string) => { appels.stockage.push(`envoi ${chemin}`); return { data: {}, error: null } },
+    remove: async (chemins: string[]) => { appels.stockage.push(...chemins.map(c => `retrait ${c}`)); return { data: [], error: null } },
+    getPublicUrl: (p: string) => ({ data: { publicUrl: `https://stockage.test/${p}` } }) }) },
   auth: {
     onAuthStateChange: () => ({ data: { subscription: { unsubscribe() {} } } }), getSession: async () => ({ data: { session: null } }),
     signInWithPassword: async ({ email, password }: { email: string; password: string }) => {
@@ -115,6 +118,8 @@ const faux = {
   },
 }
 vi.mock('@/lib/supabase', () => ({ supabaseActif: true, memoriserSession: () => {}, obtenirSupabase: async () => faux }))
+// Image de partage : jsdom ne dessine pas (pas de canvas) ; on vérifie l'envoi et le retrait, pas le dessin.
+vi.mock('@/features/admin/photos', async importer => ({ ...await importer<typeof import('@/features/admin/photos')>(), fabriquerImagePartage: async () => new Blob(['jpeg'], { type: 'image/jpeg' }) }))
 
 const { default: App } = await import('@/App')
 const { FournisseurAnimations } = await import('@/state/animations')
@@ -140,7 +145,7 @@ const commande = (reference: string, statut = 'nouvelle'): Ligne => ({
 
 beforeEach(() => {
   for (const k of Object.keys(base)) delete base[k]
-  appels.rpc.length = 0; appels.ecritures.length = 0
+  appels.rpc.length = 0; appels.ecritures.length = 0; appels.stockage.length = 0
   admin = true; deverrouille = true; cleDefinie = true; erreurStatut = null; role = 'technique'
   etatSupervisionTest = etatVide(); journalTest = []
   sessionStorage.setItem('hmode-sans-intro', '1')
@@ -306,6 +311,7 @@ describe('administration : catalogue', () => {
     expect(ligne).toMatchObject({ prix_dh: 520, prix_barre_dh: 650, a_confirmer: [] })
     expect((ligne.tailles as { taille: string; disponible: boolean }[]).map(t => `${t.taille}:${t.disponible}`)).toEqual(['XS:true', 'S:true', 'M:true', 'L:true', 'XL:true', 'XXL:false'])
     expect(screen.getByText('À jour')).toBeInTheDocument()
+    expect(appels.stockage).toContain('envoi partage/a.jpg')
   })
 
   it('nouvelle pièce : adresse tirée du nom, déjà prise refusée, puis créée masquée', async () => {
@@ -342,6 +348,7 @@ describe('administration : catalogue', () => {
     await u.click(within(fenetre).getByRole('button', { name: 'Supprimer définitivement' }))
     expect(await screen.findByText(/^Pièce supprimée\. Visible sur le site tout de suite/)).toBeInTheDocument()
     expect(base.produits.map(p => p.slug)).toEqual(['a'])
+    expect(appels.stockage).toContain('retrait partage/b.jpg')
   })
 
   it('droits refusés par la base : message clair, rien de perdu', async () => {

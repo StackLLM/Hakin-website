@@ -6,7 +6,7 @@
 - **Date** : 2026-11-18 (version 3 : vignettes et plan du site servis à la demande par Edge Function, plus aucun build lancé par l'admin)
 - **Auteur** : Oussama (avec Claude)
 - **Branche de travail** : `dev` → `main` après validation (PR, CI verte)
-- **État** (2026-11-18) : **phase 1 faite** (lots 1.1 et 1.2, sur `dev`, non poussée). Phase 2 à commencer : aucune décision en attente.
+- **État** (2026-11-21) : **phase 1 faite et en ligne** (version `741ce9d`). **Lot 2.1 fait** (sur `dev`, non poussé ; migration locale seulement). Suite : lot 2.2.
 
 ---
 
@@ -184,10 +184,17 @@ Décisions d'Oussama.
 - **À faire**
   - Dans `features/admin/photos.ts`, ajouter la fabrication de l'image de partage dans le navigateur (canvas) : pièce entière sur le fond de la charte, monogramme en bas à droite, JPEG, moins de 300 Ko. Même rendu que `pages-partage.mjs`.
   - À l'enregistrement d'une pièce dont la première photo a changé (ou à la création), téléverser `partage/<slug>.jpg` dans le bucket `produits` (droits admin déjà en place).
-  - Script ponctuel pour les 62 pièces existantes (réutilise `pages-partage.mjs` en local, puis téléverse), lancé avec ton OK.
+  - ~~Script ponctuel pour les 62 pièces existantes~~ (**abandonné le 2026-11-21** : le build publie déjà `/partage/<slug>.jpg` pour chaque pièce, la fonction s'en sert en secours, voir lot 2.2).
   - Test unitaire : dimensions, format et poids de l'image produite.
 - **Dépend de** : rien.
 - **Résultat attendu** : après enregistrement d'une pièce dans l'admin local, `partage/<slug>.jpg` existe dans le stockage et s'ouvre en 1200 × 630.
+- **Fait (2026-11-21)** :
+  - `features/admin/photos.ts` : `fabriquerImagePartage` (canvas, fond `--fond`, pièce entière, monogramme, JPEG sous 290 Ko) et `cadrePartage` (placement testé). Monogramme public `public/images/marque/monogramme-168.png`, refait par `npm run logo`.
+  - `api.ts` : `televerserImagePartage` (remplacement, cache 5 min) et `supprimerImagePartage`.
+  - `EditionProduit.tsx` : image refaite **à chaque enregistrement** (pas seulement quand la première photo change : plus simple, et un échec se rattrape au prochain enregistrement) ; retirée si la pièce n'a plus de photo ou est supprimée. Un échec n'annule pas l'enregistrement (message d'information).
+  - Migration `20261118120000_images_partage.sql` : JPEG accepté dans le bucket, **seulement** sous `partage/<slug>.jpg` ; remplacement réservé à l'admin.
+  - Preuves : 111 tests verts (placement, envoi et retrait vérifiés dans `admin-ecrans.test.tsx`), types OK ; suite de la base locale verte avec le nouveau contrôle (client refusé, admin envoie et remplace, lecture publique, JPEG refusé hors de `partage/`) ; dans le navigateur, image réelle de la Air Force 1 : 1200 × 630, 79 Ko, pièce entière, monogramme présent.
+  - Migration **pas encore en ligne** (lot 2.7).
 
 <a id="lot-2-2"></a>
 ### Lot 2.2 — Edge Function `apercu` (vignette d'une pièce)
@@ -195,6 +202,7 @@ Décisions d'Oussama.
 - **Objectif** : `/p/<slug>` renvoie une petite page avec les balises de partage de la pièce, lues dans la base au moment de la demande.
 - **À faire**
   - Créer `supabase/functions/apercu/index.ts` : lit la pièce publiée par son `slug` avec la clé publique (règles RLS actuelles, aucune clé de service) ; renvoie une page HTML avec titre, description (prix + 140 caractères), image `partage/<slug>.jpg`, `og:url` = `/p/<slug>`, et une redirection sans script (`<meta http-equiv="refresh">` + lien) vers `/produit/<slug>` pour les humains.
+  - Image, dans cet ordre : `partage/<slug>.jpg` du stockage (fabriquée par l'admin) ; sinon `<site>/partage/<slug>.jpg` (publiée par le build) ; sinon `<site>/partage/hmode.jpg` (image générale). Paramètre de version (`maj_le`) dans l'adresse pour que WhatsApp ne garde pas l'ancienne.
   - Pièce inconnue ou dépubliée : vignette générale de H MODE et redirection vers `/produit/<slug>` (le site affiche sa page 404).
   - Tout texte échappé ; `slug` vérifié par la même règle que la base ; `Cache-Control` court (5 min) pour limiter les appels.
   - `supabase/config.toml` : `[functions.apercu] verify_jwt = false` (appel anonyme par WhatsApp), avec un commentaire.
@@ -257,7 +265,7 @@ Décisions d'Oussama.
   1. **Sauvegarde** : `npm run sauvegarde`.
   2. Avec ton OK : `npx supabase functions deploy apercu` puis `npx supabase functions deploy sitemap-produits` (sans vérification de jeton, comme dans `config.toml`).
   3. Avec ton OK : `npx supabase db push --remote --dry-run`, puis `--yes` (migration du lot 2.6).
-  4. Avec ton OK : script des images de partage des 62 pièces (lot 2.1) vers le stockage en ligne.
+  4. ~~Script des images de partage des 62 pièces~~ (abandonné : secours sur les images du build, lot 2.2).
   5. Contrôle sans écriture : les deux fonctions répondent à leur adresse Supabase.
   6. PR `dev` → `main`, CI verte, fusion : **un seul build**, celui du code.
 - **Dépend de** : 2.6.
@@ -319,7 +327,7 @@ Décisions d'Oussama.
 | Quand | Action |
 |---|---|
 | Avant le lot 1.1 | ~~Choisir la relecture au retour d'onglet (A) ou Supabase Realtime (B).~~ **Fait** : A (2026-11-18). |
-| Lot 2.7, étapes 2 à 4 | Donner ton OK pour déployer les deux fonctions, pousser la migration et téléverser les images de partage (sauvegarde faite avant). |
+| Lot 2.7, étapes 2 et 3 | Donner ton OK pour déployer les deux fonctions et pousser les migrations (sauvegarde faite avant). |
 | Lot 2.7, étape 6 | Valider la PR `dev` → `main`. |
 | Test réel phase 2 | Donner ton OK pour un changement de prix réversible en ligne, puis vérifier toi-même la vignette dans WhatsApp. |
 | Plus besoin | Créer un build hook Netlify ou un secret GitHub `NETLIFY_BUILD_HOOK`. |
@@ -334,7 +342,7 @@ Décisions d'Oussama.
 | WhatsApp et Facebook lisent bien les balises d'une page relayée par Netlify, et ne suivent pas la redirection avant de les lire | Test réel | Sinon ils liraient l'ancienne page de `/produit/<slug>` |
 | Coût des requêtes relayées dans le quota de trafic Netlify | Avant 2.7 | Elles viennent des robots de partage seulement, mais le tarif exact n'est pas confirmé |
 | Quota d'appels des Edge Functions de ton offre Supabase | Avant 2.7 | Fixe le `Cache-Control` raisonnable |
-| Bucket `produits` lisible publiquement pour `partage/<slug>.jpg` | Lot 2.1 | WhatsApp doit pouvoir télécharger l'image sans compte |
+| ~~Bucket `produits` lisible publiquement pour `partage/<slug>.jpg`~~ | Lot 2.1 | **Confirmé** en local le 2026-11-21 (lecture publique 200) |
 | Le relais Netlify garde-t-il le `Cache-Control` des fonctions ? | Lot 2.4 | Moins d'appels si Netlify garde la réponse en cache |
 
 ---
@@ -346,6 +354,7 @@ Décisions d'Oussama.
 |---|---|---|
 | Où ranger le plan | `docs/plans/` (dossier créé) | Le projet n'avait pas de dossier de plans ; `docs/projet/planning/` est l'historique d'octobre |
 | Image de partage | Fabriquée dans le navigateur de l'admin, JPEG dans Storage | Une Edge Function convertit mal les images, et le build ne doit plus servir au contenu |
+| Images des 62 pièces existantes | Pas de script : secours sur `/partage/<slug>.jpg` publié par le build | Aucune écriture en ligne, aucun accès admin depuis un script ; chaque pièce réenregistrée reçoit son image à jour |
 | Adresse partagée | `/p/<slug>`, séparée de `/produit/<slug>` | La navigation normale ne passe pas par la fonction : les fiches restent aussi rapides |
 | Plan du site | Index : pages fixes au build, pièces par la fonction | Types et collections ne sont pas en base ; les pièces, si |
 | Clé utilisée par les fonctions | Clé publique + RLS existante, aucune clé de service | Elles ne lisent que des données publiques ; aucun secret à ranger |
@@ -359,11 +368,11 @@ Décisions d'Oussama.
 ## Zone technique concernée
 
 - **Site client** : `web/src/lib/donnees.ts`, `web/src/lib/selectionFiche.ts` (nouveau), `web/src/App.tsx`, `web/src/features/produit/PageProduit.tsx` (`lienFiche`), `web/src/lib/whatsapp.ts`.
-- **Admin** : `web/src/features/admin/photos.ts`, `EditionProduit.tsx`, `Reglages.tsx`, `Textes.tsx`, `api.ts`, écran de Supervision.
+- **Admin** : `web/src/features/admin/photos.ts` (image de partage), `web/public/images/marque/monogramme-168.png`, `web/scripts/logo-marque.mjs`, `EditionProduit.tsx`, `Reglages.tsx`, `Textes.tsx`, `api.ts`, écran de Supervision.
 - **Edge Functions (nouveau)** : `supabase/functions/apercu/index.ts`, `supabase/functions/sitemap-produits/index.ts`, `supabase/config.toml`.
 - **Relais** : `web/public/_redirects`, `infra/docker/nginx.conf`.
 - **Build** : `web/scripts/sitemap.mjs` (index), `web/scripts/pages-partage.mjs` (gardé), script ponctuel des images de partage.
-- **Base** : migration de retrait de `republication_necessaire` et des seuils du robot ; bucket `produits` (dossier `partage/`).
+- **Base** : `supabase/migrations/20261118120000_images_partage.sql` (lot 2.1), migration de retrait de `republication_necessaire` et des seuils du robot ; bucket `produits` (dossier `partage/`).
 - **Robot** : `web/scripts/robot-sante.mjs`, `.github/workflows/sante.yml`.
 - **Tests** : `web/src/test/` (`routes`, `whatsapp`, `parcours`, nouveaux tests), `web/scripts/tests-supabase-local.mjs`, `web/e2e/admin/`.
 - **Docs** : `docs/projet/plan.md`, `docs/architecture.md`, `docs/README.md`, `docs/decisions/0008-…` (note), `docs/decisions/0013-…`, `CLAUDE.md`, `supabase/README.md`, `.claude/skills/codebase-overview/SKILL.md`.

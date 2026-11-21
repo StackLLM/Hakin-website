@@ -95,6 +95,14 @@ export async function televerserPhoto(slug: string, fichiers: { 480: Blob; 960: 
   }
   return sb.storage.from(ESPACE).getPublicUrl(nom).data.publicUrl
 }
+/** Image de partage d'une pièce (vignette des liens partagés) : remplacée à chaque nouvelle première photo. */
+const cheminPartage = (slug: string) => `partage/${slug}.jpg`
+export async function televerserImagePartage(slug: string, image: Blob) {
+  verifier(await (await base()).storage.from(ESPACE).upload(cheminPartage(slug), image, { contentType: 'image/jpeg', upsert: true, cacheControl: '300' }))
+}
+export async function supprimerImagePartage(slug: string) {
+  verifier(await (await base()).storage.from(ESPACE).remove([cheminPartage(slug)]))
+}
 /** Retire les fichiers d'une photo envoyée par l'administration (les photos livrées avec le site restent). */
 export async function supprimerPhoto(src: string) {
   const marque = `/object/public/${ESPACE}/`

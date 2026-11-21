@@ -11,8 +11,8 @@ import { cn } from '@/lib/utils'
 
 /** Teinte proposée pour un nouveau coloris : l'encre de la charte (token `--encre`), sans couleur écrite dans le code. */
 const teinteInitiale = () => getComputedStyle(document.documentElement).getPropertyValue('--encre').trim()
-import { creerProduit, lireProduit, listerProduits, modifierProduit, supprimerPhoto, supprimerProduit, televerserPhoto } from './api'
-import { controlerPhoto, preparerPhoto } from './photos'
+import { creerProduit, lireProduit, listerProduits, modifierProduit, supprimerImagePartage, supprimerPhoto, supprimerProduit, televerserImagePartage, televerserPhoto } from './api'
+import { controlerPhoto, fabriquerImagePartage, preparerPhoto } from './photos'
 import { CarteAdmin, Chargement, Confirmation, EnTeteAdmin, ErreurAdmin, Interrupteur, useAvertirSiModifie } from './commun'
 
 const VUES: { cle: ImageProduit['vue']; libelle: string }[] = [
@@ -91,6 +91,17 @@ export function EditionProduit() {
     if (champFichier.current) champFichier.current.value = ''
   }
 
+  // Vignette des liens partagés (WhatsApp, Facebook) : refaite à chaque enregistrement, depuis la première photo, sans build
+  // (plan 2026-11-18, lot 2.1). Un échec n'annule pas l'enregistrement de la pièce.
+  const majImagePartage = async (slug: string, src: string | undefined) => {
+    try {
+      if (src) await televerserImagePartage(slug, await fabriquerImagePartage(src))
+      else await supprimerImagePartage(slug)
+    } catch (e) {
+      notifier({ ton: 'info', message: `Pièce enregistrée, mais l'image des liens partagés n'a pas été mise à jour (${(e as Error).message}). Elle sera refaite au prochain enregistrement.` })
+    }
+  }
+
   const enregistrer = async () => {
     const pret = { ...p, slug: creation ? slugifier(p.slug) : p.slug, nom: p.nom.trim(), marque: p.marque.trim(), aConfirmer: nettoyerAConfirmer(p) }
     const e = validerProduit(pret, slugs)
@@ -103,6 +114,7 @@ export function EditionProduit() {
     setEnvoi(true)
     try {
       if (creation) await creerProduit(pret); else await modifierProduit(pret)
+      await majImagePartage(pret.slug, pret.images[0]?.src)
       await Promise.all(aRetirer.map(src => supprimerPhoto(src).catch(() => undefined)))
       setARetirer([])
       setInitial(pret); setP(pret)
@@ -116,6 +128,7 @@ export function EditionProduit() {
   const supprimer = async () => {
     try {
       await supprimerProduit(p.slug)
+      await supprimerImagePartage(p.slug).catch(() => undefined)
       await Promise.all([...p.images.map(i => i.src), ...aRetirer].map(src => supprimerPhoto(src).catch(() => undefined)))
       void chargerDonnees()
       notifier({ ton: 'succes', message: `Pièce supprimée. ${VISIBILITE_CLIENTS}` })

@@ -312,6 +312,18 @@ const pdf = await B.sb.storage.from('produits').upload(`${ESSAI}/x.pdf`, new Blo
 verdict(Boolean(pdf.error), 'photos : seul le WebP est accepté', pdf.error?.message)
 const retrait = await B.sb.storage.from('produits').remove([chemin])
 verdict(!retrait.error && retrait.data?.length === 1, 'photos : retirée par l\'admin')
+// Images de partage (plan 2026-11-18, lot 2.1) : JPEG seulement sous partage/<slug>.jpg, remplaçable par l'admin.
+const jpeg = () => new Blob([new Uint8Array([255, 216, 255, 224])], { type: 'image/jpeg' })
+const cheminPartage = `partage/essai-${suffixe}.jpg`
+const partageA = await A.sb.storage.from('produits').upload(cheminPartage, jpeg(), { contentType: 'image/jpeg' })
+const partageB = await B.sb.storage.from('produits').upload(cheminPartage, jpeg(), { contentType: 'image/jpeg' })
+const partageRemplace = await B.sb.storage.from('produits').upload(cheminPartage, jpeg(), { contentType: 'image/jpeg', upsert: true })
+const partageLu = await fetch(B.sb.storage.from('produits').getPublicUrl(cheminPartage).data.publicUrl)
+const jpegAilleurs = await B.sb.storage.from('produits').upload(`${ESSAI}/photo.jpg`, jpeg(), { contentType: 'image/jpeg' })
+verdict(Boolean(partageA.error) && !partageB.error && !partageRemplace.error && partageLu.status === 200 && Boolean(jpegAilleurs.error),
+  'image de partage : refusée à un client ; envoyée, remplacée et lisible publiquement pour l\'admin ; JPEG refusé hors de partage/',
+  `${partageA.error?.message} / ${partageB.error?.message ?? 'ok'} / ${partageRemplace.error?.message ?? 'ok'} / ${partageLu.status} / ${jpegAilleurs.error?.message}`)
+await B.sb.storage.from('produits').remove([cheminPartage])
 
 const supA = await A.sb.rpc('supprimer_commande', { ref: refPrix })
 const supB = await B.sb.rpc('supprimer_commande', { ref: refPrix })

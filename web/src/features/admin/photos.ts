@@ -28,3 +28,48 @@ export async function preparerPhoto(f: File): Promise<{ 480: Blob; 960: Blob }> 
   image.close()
   return sortie
 }
+
+// ── Image de partage (vignette WhatsApp, Facebook) ──────────────────────────────────────────────────
+// JPEG 1200 × 630 : la pièce entière sur le fond de la charte, monogramme en bas à droite. Même rendu que
+// scripts/pages-partage.mjs (build), mais fabriquée ici, à l'enregistrement de la pièce : aucun build Netlify.
+// Rangée dans produits/partage/<slug>.jpg, lue par l'Edge Function « apercu » (plan 2026-11-18, lot 2.1).
+export const PARTAGE = { largeur: 1200, hauteur: 630, margeX: 80, margeY: 40, logo: 84, poidsMax: 290_000 } as const
+const FOND_PARTAGE = '#f5f4f0' // --fond de palette.md, même valeur que FOND dans pages-partage.mjs
+const MONOGRAMME = '/images/marque/monogramme-168.png' // produit par `npm run logo`
+
+/** Place de la pièce dans l'image : entière (jamais recadrée ni déformée), agrandie au besoin, centrée. */
+export function cadrePartage(l: number, h: number) {
+  const echelle = Math.min((PARTAGE.largeur - 2 * PARTAGE.margeX) / l, (PARTAGE.hauteur - 2 * PARTAGE.margeY) / h)
+  const largeur = Math.round(l * echelle), hauteur = Math.round(h * echelle)
+  return { x: Math.round((PARTAGE.largeur - largeur) / 2), y: Math.round((PARTAGE.hauteur - hauteur) / 2), largeur, hauteur }
+}
+
+async function chargerImage(adresse: string) {
+  const r = await fetch(adresse)
+  if (!r.ok) throw new Error(`photo introuvable (HTTP ${r.status})`)
+  return createImageBitmap(await r.blob())
+}
+
+/** `src` = chemin d'une photo sans suffixe (comme dans `images[].src`) ; la version 960 px sert de source. */
+export async function fabriquerImagePartage(src: string): Promise<Blob> {
+  const toile = document.createElement('canvas')
+  toile.width = PARTAGE.largeur; toile.height = PARTAGE.hauteur
+  const ctx = toile.getContext('2d')
+  if (!ctx) throw new Error('image de partage impossible dans ce navigateur')
+  ctx.fillStyle = FOND_PARTAGE
+  ctx.fillRect(0, 0, PARTAGE.largeur, PARTAGE.hauteur)
+  const photo = await chargerImage(`${src}-960.webp`)
+  const c = cadrePartage(photo.width, photo.height)
+  ctx.drawImage(photo, c.x, c.y, c.largeur, c.hauteur)
+  photo.close()
+  try {
+    const logo = await chargerImage(MONOGRAMME)
+    ctx.drawImage(logo, PARTAGE.largeur - PARTAGE.logo - 32, PARTAGE.hauteur - PARTAGE.logo - 28, PARTAGE.logo, PARTAGE.logo)
+    logo.close()
+  } catch { /* sans monogramme : l'image reste utilisable */ }
+  // Qualité baissée par paliers jusqu'à passer sous le poids maximum (comme pages-partage.mjs).
+  for (let qualite = 0.84; ; qualite -= 0.08) {
+    const jpeg = await new Promise<Blob>((ok, ko) => toile.toBlob(b => (b ? ok(b) : ko(new Error('conversion JPEG impossible'))), 'image/jpeg', qualite))
+    if (jpeg.size <= PARTAGE.poidsMax || qualite <= 0.44) return jpeg
+  }
+}

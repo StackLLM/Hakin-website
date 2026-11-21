@@ -14,7 +14,7 @@ import {
 } from '@/lib/admin'
 import { fusionnerBoutique, fusionnerTextes, ligneVersProduit, produitVersLigne, type ProduitAdmin } from '@/lib/produitsBase'
 import { HEX_COLORIS, appliquerCatalogue, appliquerReglages, boutique, boutiqueFichier, produits, produitsFichier, textes, trouverProduit } from '@/lib/catalogue'
-import { controlerPhoto, largeurCible } from '@/features/admin/photos'
+import { cadrePartage, controlerPhoto, largeurCible, PARTAGE } from '@/features/admin/photos'
 
 const piece = (x: Partial<ProduitAdmin> = {}): ProduitAdmin => ({
   ...produitVide('t-shirts'), slug: 't-shirt-essai', nom: 'T-shirt essai', marque: 'Essai', publie: false, ...x,
@@ -170,3 +170,25 @@ describe('photos', () => {
     expect(largeurCible(2000, 480)).toBe(480)
   })
 })
+
+describe('image de partage fabriquée dans l\'admin (lot 2.1)', () => {
+  const dedans = (c: ReturnType<typeof cadrePartage>) =>
+    c.x >= PARTAGE.margeX - 1 && c.y >= PARTAGE.margeY - 1 && c.x + c.largeur <= PARTAGE.largeur - PARTAGE.margeX + 1 && c.y + c.hauteur <= PARTAGE.hauteur - PARTAGE.margeY + 1
+  it('photo verticale : toute la hauteur utile, centrée, proportions gardées', () => {
+    const c = cadrePartage(960, 1200)
+    expect(c.hauteur).toBe(PARTAGE.hauteur - 2 * PARTAGE.margeY)
+    expect(c.largeur / c.hauteur).toBeCloseTo(960 / 1200, 2)
+    expect(c.x).toBe(Math.round((PARTAGE.largeur - c.largeur) / 2))
+    expect(dedans(c)).toBe(true)
+  })
+  it('chaussure très allongée : toute la largeur utile, jamais recadrée', () => {
+    const c = cadrePartage(960, 444)
+    expect(c.largeur).toBe(PARTAGE.largeur - 2 * PARTAGE.margeX)
+    expect(c.largeur / c.hauteur).toBeCloseTo(960 / 444, 2)
+    expect(dedans(c)).toBe(true)
+  })
+  it('petite photo : agrandie pour remplir la zone, comme au build', () => {
+    expect(cadrePartage(200, 200).hauteur).toBe(PARTAGE.hauteur - 2 * PARTAGE.margeY)
+  })
+})
+
